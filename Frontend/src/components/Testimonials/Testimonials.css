@@ -153,11 +153,6 @@
   color: #1a1a1a;
 }
 
-.testimonial-card__location {
-  font-size: 0.75rem;
-  color: #aaa;
-}
-
 .testimonial-card__quote-icon {
   font-size: 4rem;
   line-height: 0.6;
@@ -197,7 +192,7 @@
 
 .testimonial-card__product {
   font-size: 0.72rem;
-  color: #22c55e;
+  color: #FF6B00;
   font-weight: 600;
 }
 

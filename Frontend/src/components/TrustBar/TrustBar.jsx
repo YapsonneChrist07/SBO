@@ -1,7 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import { getRecentReviews } from '../../api/reviews'
 import './TrustBar.css'
 
-const items = [
+const MIN_REVIEWS_FOR_RATING = 5
+
+const baseItems = [
   {
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -44,18 +47,30 @@ const items = [
     value: 'Support',
     label: '7j/7 — 24h/24',
   },
-  {
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-      </svg>
-    ),
-    value: '4.8 / 5',
-    label: 'Satisfaction client',
-  },
 ]
 
+const ratingIcon = (
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+  </svg>
+)
+
 export default function TrustBar() {
+  const [reviewSummary, setReviewSummary] = useState(null)
+
+  useEffect(() => {
+    getRecentReviews(1).then(setReviewSummary).catch(() => setReviewSummary(null))
+  }, [])
+
+  const items = [...baseItems]
+  if (reviewSummary && reviewSummary.count >= MIN_REVIEWS_FOR_RATING) {
+    items.push({
+      icon: ratingIcon,
+      value: `${reviewSummary.average.toFixed(1)} / 5`,
+      label: `Satisfaction client · ${reviewSummary.count} avis`,
+    })
+  }
+
   return (
     <section className="trust-bar">
       <div className="trust-bar__inner">

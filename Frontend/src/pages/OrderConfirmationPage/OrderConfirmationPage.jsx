@@ -82,6 +82,24 @@ export default function OrderConfirmationPage() {
           ))}
         </ul>
 
+        {(order.lineOfAddress || order.cityName) && (
+          <div className="order-page__meta">
+            <div>
+              <span>Livraison</span>
+              <strong>{[order.lineOfAddress, order.cityName, order.postalCode].filter(Boolean).join(', ')}</strong>
+            </div>
+          </div>
+        )}
+
+        {order.payments?.[0] && (
+          <div className="order-page__meta">
+            <div>
+              <span>Paiement</span>
+              <strong>{order.payments[0].paymentMethodName}</strong>
+            </div>
+          </div>
+        )}
+
         <div className="order-page__totals">
           <div><span>Sous-total</span><span>{formatPriceOrTBD(order.subTotal)}</span></div>
           {Number(order.transportCost) > 0 && (

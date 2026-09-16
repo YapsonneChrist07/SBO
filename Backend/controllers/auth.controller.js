@@ -18,10 +18,20 @@ const register = async (req, res) => {
     const hashed = await bcrypt.hash(password, 10);
     const contactID = generateId();
 
+    // contact.addressID is NOT NULL, but we don't collect an address at signup —
+    // create a placeholder the user fills in for real at checkout.
+    const [[defaultCity]] = await db.query('SELECT cityID FROM city ORDER BY cityID LIMIT 1');
+    if (!defaultCity) return error(res, 'No city configured for new addresses', 500);
+    const addressID = generateId();
     await db.query(
-      `INSERT INTO contact (contactID, firstName, lastName, username, password, nickName, phone, email)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [contactID, firstName, lastName, username, hashed, nickName || null, phone || null, email || null]
+      'INSERT INTO address (addressID, cityID, phone, email) VALUES (?, ?, ?, ?)',
+      [addressID, defaultCity.cityID, phone || null, email || null]
+    );
+
+    await db.query(
+      `INSERT INTO contact (contactID, addressID, firstName, lastName, username, password, nickName, phone, email)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [contactID, addressID, firstName, lastName, username, hashed, nickName || null, phone || null, email || null]
     );
 
     return success(res, { contactID }, 'Registration successful', 201);
@@ -61,8 +71,12 @@ const login = async (req, res) => {
 const getMe = async (req, res) => {
   try {
     const [rows] = await db.query(
-      `SELECT c.contactID, c.firstName, c.lastName, c.username, c.nickName, c.phone, c.alternatePhone, c.email, u.adminEntity
-       FROM contact c LEFT JOIN usercreator u ON u.contactID = c.contactID
+      `SELECT c.contactID, c.firstName, c.lastName, c.username, c.nickName, c.phone, c.alternatePhone, c.email, u.adminEntity,
+              a.addressID, a.lineOfAddress, a.postalCode, ci.cityID, ci.name AS cityName
+       FROM contact c
+       LEFT JOIN usercreator u ON u.contactID = c.contactID
+       LEFT JOIN address a ON a.addressID = c.addressID
+       LEFT JOIN city ci ON ci.cityID = a.cityID
        WHERE c.contactID = ?`,
       [req.user.contactID]
     );

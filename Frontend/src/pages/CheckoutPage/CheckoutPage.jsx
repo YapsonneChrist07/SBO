@@ -1,17 +1,39 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 import { createOrder } from '../../api/orders'
+import { getCities } from '../../api/lookup'
+import { getPaymentMethods } from '../../api/payments'
+import { getCreditCardTypes, getMyCreditCards, createCreditCard } from '../../api/creditcards'
+import { getMobileOperators, getMyMobileMoneyAccounts, createMobileMoneyAccount } from '../../api/mobilemoney'
 import { formatPriceOrTBD } from '../../utils/format'
 import './CheckoutPage.css'
+
+const NEW_CARD = '__new_card__'
+const NEW_MOBILE = '__new_mobile__'
 
 export default function CheckoutPage() {
   const { user, token, loading: authLoading } = useAuth()
   const { items, subtotal, clear } = useCart()
   const navigate = useNavigate()
 
-  const [form, setForm] = useState({ address: '', city: '', postalCode: '', phone: '', notes: '' })
+  const [form, setForm] = useState({ address: '', cityID: '', postalCode: '', phone: '' })
+  const [cities, setCities] = useState([])
+
+  const [paymentMethods, setPaymentMethods] = useState([])
+  const [methodID, setMethodID] = useState(null)
+
+  const [cardTypes, setCardTypes] = useState([])
+  const [savedCards, setSavedCards] = useState([])
+  const [cardID, setCardID] = useState('')
+  const [newCard, setNewCard] = useState({ creditCardNbr: '', creditCardTypeID: '', fullName: '', expirationDate: '', verificationCode: '' })
+
+  const [operators, setOperators] = useState([])
+  const [savedMobileMoney, setSavedMobileMoney] = useState([])
+  const [mobileMoneyID, setMobileMoneyID] = useState('')
+  const [newMobile, setNewMobile] = useState({ mobilePhoneNbr: '', mobileOperatorID: '' })
+
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
@@ -23,8 +45,52 @@ export default function CheckoutPage() {
   }, [authLoading, user, navigate])
 
   useEffect(() => {
-    if (user?.phone) setForm((f) => ({ ...f, phone: f.phone || user.phone }))
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        address: f.address || user.lineOfAddress || '',
+        cityID: f.cityID || user.cityID || '',
+        postalCode: f.postalCode || user.postalCode || '',
+        phone: f.phone || user.phone || '',
+      }))
+    }
   }, [user])
+
+  useEffect(() => {
+    getCities().then(setCities).catch(() => {})
+    getPaymentMethods().then(setPaymentMethods).catch(() => {})
+    getCreditCardTypes().then(setCardTypes).catch(() => {})
+    getMobileOperators().then(setOperators).catch(() => {})
+  }, [])
+
+  useEffect(() => {
+    if (!user?.contactID || !token) return
+    getMyCreditCards(user.contactID, token).then(setSavedCards).catch(() => {})
+    getMyMobileMoneyAccounts(user.contactID, token).then(setSavedMobileMoney).catch(() => {})
+  }, [user, token])
+
+  const cardMethod = useMemo(
+    () => paymentMethods.find((m) => /carte|card/i.test(m.paymentMethodName)) || paymentMethods[0],
+    [paymentMethods]
+  )
+  const mobileMethod = useMemo(
+    () => paymentMethods.find((m) => /mobile/i.test(m.paymentMethodName)) || paymentMethods[1],
+    [paymentMethods]
+  )
+
+  useEffect(() => {
+    if (!methodID && cardMethod) setMethodID(cardMethod.paymentMethodID)
+  }, [cardMethod, methodID])
+
+  useEffect(() => {
+    if (!cardID && savedCards.length) setCardID(savedCards[0].creditCardID)
+    else if (!cardID && !savedCards.length) setCardID(NEW_CARD)
+  }, [savedCards, cardID])
+
+  useEffect(() => {
+    if (!mobileMoneyID && savedMobileMoney.length) setMobileMoneyID(savedMobileMoney[0].mobileMoneyID)
+    else if (!mobileMoneyID && !savedMobileMoney.length) setMobileMoneyID(NEW_MOBILE)
+  }, [savedMobileMoney, mobileMoneyID])
 
   if (authLoading || !user) {
     return <main className="checkout-page"><p className="checkout-page__muted">Chargement…</p></main>
@@ -42,18 +108,46 @@ export default function CheckoutPage() {
   }
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+  const isCardMethod = cardMethod && methodID === cardMethod.paymentMethodID
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError('')
     setSubmitting(true)
     try {
+      let payment = { paymentMethodID: methodID }
+
+      if (isCardMethod) {
+        if (cardID === NEW_CARD) {
+          const [mm, yy] = newCard.expirationDate.split('/')
+          const expirationDate = `20${yy}-${mm}-01`
+          const { creditCardID } = await createCreditCard({ ...newCard, expirationDate }, token)
+          payment.creditCardID = creditCardID
+        } else {
+          payment.creditCardID = cardID
+        }
+      } else {
+        if (mobileMoneyID === NEW_MOBILE) {
+          const { mobileMoneyID: newID } = await createMobileMoneyAccount(newMobile, token)
+          payment.mobileMoneyID = newID
+        } else {
+          payment.mobileMoneyID = mobileMoneyID
+        }
+      }
+
       const payload = {
         items: items.map((i) => ({
           productID: i.productID,
           quantity: i.quantity,
           unitPrice: Number(i.unitPrice) || 0,
         })),
+        address: {
+          lineOfAddress: form.address,
+          cityID: form.cityID,
+          postalCode: form.postalCode,
+          phone: form.phone,
+        },
+        payment,
       }
       const { sellID } = await createOrder(payload, token)
       await clear()
@@ -103,20 +197,170 @@ export default function CheckoutPage() {
               </label>
               <label>
                 <span>Ville</span>
-                <input name="city" value={form.city} onChange={handleChange} required />
+                <select name="cityID" value={form.cityID} onChange={handleChange} required>
+                  <option value="" disabled>Sélectionner une ville</option>
+                  {cities.map((c) => (
+                    <option key={c.cityID} value={c.cityID}>{c.name}</option>
+                  ))}
+                </select>
               </label>
               <label>
                 <span>Code postal</span>
                 <input name="postalCode" value={form.postalCode} onChange={handleChange} required />
               </label>
-              <label className="checkout-form__full">
-                <span>Instructions de livraison (optionnel)</span>
-                <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} />
-              </label>
             </div>
           </section>
 
-          <button className="checkout-form__submit" type="submit" disabled={submitting}>
+          <section className="checkout-form__section">
+            <h2>Paiement</h2>
+            {paymentMethods.length > 0 && (
+              <div className="checkout-form__method-tabs">
+                {cardMethod && (
+                  <button
+                    type="button"
+                    className={`checkout-form__method-tab ${isCardMethod ? 'checkout-form__method-tab--active' : ''}`}
+                    onClick={() => setMethodID(cardMethod.paymentMethodID)}
+                  >
+                    {cardMethod.paymentMethodName}
+                  </button>
+                )}
+                {mobileMethod && (
+                  <button
+                    type="button"
+                    className={`checkout-form__method-tab ${!isCardMethod ? 'checkout-form__method-tab--active' : ''}`}
+                    onClick={() => setMethodID(mobileMethod.paymentMethodID)}
+                  >
+                    {mobileMethod.paymentMethodName}
+                  </button>
+                )}
+              </div>
+            )}
+
+            {isCardMethod ? (
+              <div className="checkout-form__payment-body">
+                {savedCards.length > 0 && (
+                  <div className="checkout-form__saved-list">
+                    {savedCards.map((c) => (
+                      <label key={c.creditCardID} className="checkout-form__radio">
+                        <input
+                          type="radio"
+                          name="cardID"
+                          checked={cardID === c.creditCardID}
+                          onChange={() => setCardID(c.creditCardID)}
+                        />
+                        <span>{c.typeName} •••• {String(c.creditCardNbr).slice(-4)} — {c.fullName}</span>
+                      </label>
+                    ))}
+                    <label className="checkout-form__radio">
+                      <input type="radio" name="cardID" checked={cardID === NEW_CARD} onChange={() => setCardID(NEW_CARD)} />
+                      <span>Utiliser une nouvelle carte</span>
+                    </label>
+                  </div>
+                )}
+                {cardID === NEW_CARD && (
+                  <div className="checkout-form__grid">
+                    <label>
+                      <span>Type de carte</span>
+                      <select
+                        value={newCard.creditCardTypeID}
+                        onChange={(e) => setNewCard((c) => ({ ...c, creditCardTypeID: e.target.value }))}
+                        required
+                      >
+                        <option value="" disabled>Sélectionner</option>
+                        {cardTypes.map((t) => (
+                          <option key={t.creditCardTypeID} value={t.creditCardTypeID}>{t.typeName}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span>Nom sur la carte</span>
+                      <input
+                        value={newCard.fullName}
+                        onChange={(e) => setNewCard((c) => ({ ...c, fullName: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label className="checkout-form__full">
+                      <span>Numéro de carte</span>
+                      <input
+                        inputMode="numeric"
+                        value={newCard.creditCardNbr}
+                        onChange={(e) => setNewCard((c) => ({ ...c, creditCardNbr: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label>
+                      <span>Expiration (MM/AA)</span>
+                      <input
+                        placeholder="MM/AA"
+                        value={newCard.expirationDate}
+                        onChange={(e) => setNewCard((c) => ({ ...c, expirationDate: e.target.value }))}
+                        required
+                      />
+                    </label>
+                    <label>
+                      <span>CVV</span>
+                      <input
+                        inputMode="numeric"
+                        value={newCard.verificationCode}
+                        onChange={(e) => setNewCard((c) => ({ ...c, verificationCode: e.target.value }))}
+                        required
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="checkout-form__payment-body">
+                {savedMobileMoney.length > 0 && (
+                  <div className="checkout-form__saved-list">
+                    {savedMobileMoney.map((m) => (
+                      <label key={m.mobileMoneyID} className="checkout-form__radio">
+                        <input
+                          type="radio"
+                          name="mobileMoneyID"
+                          checked={mobileMoneyID === m.mobileMoneyID}
+                          onChange={() => setMobileMoneyID(m.mobileMoneyID)}
+                        />
+                        <span>{m.operatorName} — {m.mobilePhoneNbr}</span>
+                      </label>
+                    ))}
+                    <label className="checkout-form__radio">
+                      <input type="radio" name="mobileMoneyID" checked={mobileMoneyID === NEW_MOBILE} onChange={() => setMobileMoneyID(NEW_MOBILE)} />
+                      <span>Utiliser un nouveau compte</span>
+                    </label>
+                  </div>
+                )}
+                {mobileMoneyID === NEW_MOBILE && (
+                  <div className="checkout-form__grid">
+                    <label>
+                      <span>Opérateur</span>
+                      <select
+                        value={newMobile.mobileOperatorID}
+                        onChange={(e) => setNewMobile((m) => ({ ...m, mobileOperatorID: e.target.value }))}
+                        required
+                      >
+                        <option value="" disabled>Sélectionner</option>
+                        {operators.map((o) => (
+                          <option key={o.mobileOperatorID} value={o.mobileOperatorID}>{o.name}</option>
+                        ))}
+                      </select>
+                    </label>
+                    <label>
+                      <span>Numéro de téléphone</span>
+                      <input
+                        value={newMobile.mobilePhoneNbr}
+                        onChange={(e) => setNewMobile((m) => ({ ...m, mobilePhoneNbr: e.target.value }))}
+                        required
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+            )}
+          </section>
+
+          <button className="checkout-form__submit" type="submit" disabled={submitting || !methodID}>
             {submitting ? 'Traitement…' : `Confirmer la commande · ${formatPriceOrTBD(subtotal)}`}
           </button>
         </form>

@@ -127,6 +127,14 @@ export default function AdminOrderDetailPage() {
                 {order.transporterName && (
                   <p className="admin-order-detail__field admin-page__muted">Transporteur : {order.transporterName}</p>
                 )}
+                {(order.lineOfAddress || order.cityName) && (
+                  <p className="admin-order-detail__field admin-page__muted">
+                    {[order.lineOfAddress, order.cityName, order.postalCode].filter(Boolean).join(', ')}
+                  </p>
+                )}
+                {order.addressPhone && (
+                  <p className="admin-order-detail__field admin-page__muted">Tél : {order.addressPhone}</p>
+                )}
               </section>
 
               <section className="admin-panel">

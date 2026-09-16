@@ -58,11 +58,14 @@ const getById = async (req, res) => {
     const [rows] = await db.query(
       `SELECT s.*, CAST(s.completed AS UNSIGNED) AS completed,
               ct.firstName, ct.lastName, ct.username, ct.email AS clientEmail,
-              b.name AS brokerName, t.name AS transporterName
+              b.name AS brokerName, t.name AS transporterName,
+              a.lineOfAddress, a.postalCode, a.phone AS addressPhone, ci.name AS cityName
        FROM sell s
        LEFT JOIN contact ct ON ct.contactID = s.clientContactID
        LEFT JOIN broker b ON b.brokerID = s.brokerID
        LEFT JOIN transporter t ON t.transporterID = s.transporterID
+       LEFT JOIN address a ON a.addressID = ct.addressID
+       LEFT JOIN city ci ON ci.cityID = a.cityID
        WHERE s.sellID = ?`,
       [req.params.id]
     );
@@ -94,7 +97,7 @@ const getById = async (req, res) => {
 
 const create = async (req, res) => {
   const { clientID, brokerID, brokerContactID, transporterID,
-          transporterContactID, items, transportCost, tax } = req.body;
+          transporterContactID, items, transportCost, tax, address, payment } = req.body;
   const clientContactID = req.user.contactID;
   const conn = await db.getConnection();
   try {
@@ -102,7 +105,24 @@ const create = async (req, res) => {
       conn.release();
       return error(res, 'At least one item is required', 400);
     }
+    if (!payment?.paymentMethodID) {
+      conn.release();
+      return error(res, 'A payment method is required', 400);
+    }
     await conn.beginTransaction();
+
+    if (address) {
+      const [[contact]] = await conn.query('SELECT addressID FROM contact WHERE contactID = ?', [clientContactID]);
+      if (contact?.addressID) {
+        await conn.query(
+          `UPDATE address SET lineOfAddress=?, cityID=?, postalCode=?, phone=?
+           WHERE addressID=?`,
+          [address.lineOfAddress || null, address.cityID, address.postalCode || null,
+           address.phone || null, contact.addressID]
+        );
+      }
+    }
+
     const sellID = generateId();
     let subTotal = 0;
     for (const item of items) {
@@ -124,6 +144,13 @@ const create = async (req, res) => {
         [sellID, item.productID, item.lenghtID || null, item.quantity, item.unitPrice, item.quantity * item.unitPrice]
       );
     }
+
+    const paymentID = generateId();
+    await conn.query(
+      `INSERT INTO payment (paymentID, paymentMethodID, sellID, paymentDate, paymentAmount, creditCardID, mobileMoneyID)
+       VALUES (?,?,?,NOW(),?,?,?)`,
+      [paymentID, payment.paymentMethodID, sellID, total, payment.creditCardID || null, payment.mobileMoneyID || null]
+    );
 
     await conn.commit();
     return success(res, { sellID }, 'Sale created', 201);

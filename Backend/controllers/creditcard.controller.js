@@ -38,12 +38,18 @@ const create = async (req, res) => {
   const { creditCardNbr, creditCardTypeID, billingAddressID, fullName, verificationCode, expirationDate } = req.body;
   try {
     const creditCardID = generateId();
+    // billingAddressID is NOT NULL — default to the cardholder's own address on file.
+    let resolvedBillingAddressID = billingAddressID;
+    if (!resolvedBillingAddressID) {
+      const [[contact]] = await db.query('SELECT addressID FROM contact WHERE contactID = ?', [req.user.contactID]);
+      resolvedBillingAddressID = contact?.addressID || null;
+    }
     await db.query(
       `INSERT INTO creditcard (creditCardID, creditCardNbr, contactID, creditCardTypeID,
        billingAddressID, fullName, verificationCode, expirationDate, deactivated)
        VALUES (?,?,?,?,?,?,?,?,'N')`,
       [creditCardID, creditCardNbr, req.user.contactID, creditCardTypeID,
-       billingAddressID || null, fullName || null, verificationCode || null, expirationDate || null]
+       resolvedBillingAddressID, fullName || null, verificationCode || null, expirationDate || null]
     );
     return success(res, { creditCardID }, 'Credit card added', 201);
   } catch (err) {

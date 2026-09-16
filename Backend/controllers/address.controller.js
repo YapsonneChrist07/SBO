@@ -59,6 +59,9 @@ const create = async (req, res) => {
 const update = async (req, res) => {
   const { lineOfAddress, cityID, postalCode, phone, alternatePhone, email } = req.body;
   try {
+    const [[owner]] = await db.query('SELECT addressID FROM contact WHERE contactID = ?', [req.user.contactID]);
+    if (!owner || owner.addressID !== req.params.id) return error(res, 'Forbidden', 403);
+
     const [result] = await db.query(
       `UPDATE address SET lineOfAddress=?, cityID=?, postalCode=?, phone=?, alternatePhone=?, email=?
        WHERE addressID=?`,

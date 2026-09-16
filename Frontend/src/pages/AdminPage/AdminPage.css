@@ -51,6 +51,16 @@
   margin-bottom: 1.5rem;
 }
 
+.admin-page__alert--link {
+  display: block;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.admin-page__alert--link:hover {
+  background: #ffe4cc;
+}
+
 .admin-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

@@ -1,0 +1,44 @@
+.admin-inventory__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #555;
+  white-space: nowrap;
+  padding: 0 0.5rem;
+}
+
+.admin-inventory__checkbox input {
+  accent-color: #FF6B00;
+  width: 16px;
+  height: 16px;
+}
+
+.admin-inventory__stock-btn {
+  border: 1px dashed #ddd;
+  background: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.admin-inventory__stock-btn:hover {
+  border-color: #FF6B00;
+  color: #FF6B00;
+}
+
+.admin-inventory__stock-input {
+  width: 70px;
+  padding: 4px 8px;
+  border: 1px solid #FF6B00;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.admin-inventory__badge--out {
+  background: #fde8e8;
+  color: #c0392b;
+}

@@ -52,6 +52,7 @@ export default function AdminPage() {
     { label: 'Commandes', value: summary.sells?.totalSells ?? 0 },
     { label: 'Clients', value: summary.clients?.totalClients ?? 0 },
     { label: 'Produits', value: summary.products?.totalProducts ?? 0, to: '/admin/products' },
+    { label: 'Stock faible', value: summary.lowStock?.lowStockCount ?? 0, to: '/admin/inventory' },
     { label: 'Fournisseurs', value: summary.suppliers?.totalSuppliers ?? 0 },
     { label: 'Coût achats', value: formatPriceOrTBD(summary.purchases?.totalPurchaseCost) },
   ]
@@ -74,9 +75,9 @@ export default function AdminPage() {
       {!loading && !error && summary && (
         <>
           {lowStockCount > 0 && (
-            <div className="admin-page__alert">
-              ⚠ {lowStockCount} produit{lowStockCount > 1 ? 's' : ''} en stock faible
-            </div>
+            <Link to="/admin/inventory" className="admin-page__alert admin-page__alert--link">
+              ⚠ {lowStockCount} ligne{lowStockCount > 1 ? 's' : ''} de stock faible — voir l'inventaire
+            </Link>
           )}
 
           <div className="admin-stats">

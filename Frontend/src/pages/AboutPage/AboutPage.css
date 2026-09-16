@@ -1,0 +1,248 @@
+.about-page {
+  min-height: 100vh;
+  background: #f8f7f5;
+}
+
+.about-page__banner {
+  padding: 150px 2rem 3rem;
+  text-align: center;
+  background: linear-gradient(135deg, #1a1a1a, #3a2410 70%, #FF6B00);
+  color: #fff;
+}
+
+.about-page__eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #FF8C42;
+  margin-bottom: 0.75rem;
+}
+
+.about-page__eyebrow--dark {
+  color: #FF6B00;
+}
+
+.about-page__banner h1 {
+  font-size: 2.4rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+}
+
+.about-page__banner p {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.95rem;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.about-page__story {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+.about-page__story-media {
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.about-page__story-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.about-page__story-text h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 1rem;
+}
+
+.about-page__story-text p {
+  color: #555;
+  line-height: 1.7;
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+}
+
+.about-page__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #FF6B00;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.about-page__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 107, 0, 0.35);
+}
+
+.about-page__cta--light {
+  background: #fff;
+  color: #1a1a1a;
+}
+
+.about-page__stats {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.about-stat {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem 1rem;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.about-stat__value {
+  display: block;
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: #FF6B00;
+  margin-bottom: 0.25rem;
+}
+
+.about-stat__label {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.about-page__values {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 2rem 4rem;
+}
+
+.about-page__values-head {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.about-page__values-head h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.about-page__values-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+.about-value-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 1.75rem 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.about-value-card__icon {
+  font-size: 1.8rem;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+.about-value-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 0.5rem;
+}
+
+.about-value-card p {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.about-page__stores-teaser {
+  background: #1a1a1a;
+  padding: 3rem 2rem;
+}
+
+.about-page__stores-teaser-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.about-page__stores-teaser-inner h2 {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem;
+}
+
+.about-page__stores-teaser-inner p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 480px;
+}
+
+@media (max-width: 900px) {
+  .about-page__story {
+    grid-template-columns: 1fr;
+    padding: 3rem 1.25rem;
+  }
+
+  .about-page__stats {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 1.25rem 3rem;
+  }
+
+  .about-page__values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .about-page__values {
+    padding: 1rem 1.25rem 3rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .about-page__banner {
+    padding: 120px 1.25rem 2.5rem;
+  }
+}
+
+@media (max-width: 520px) {
+  .about-page__stats,
+  .about-page__values-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-page__stores-teaser-inner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

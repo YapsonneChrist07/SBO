@@ -1,0 +1,159 @@
+.admin-orders__filters {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.admin-orders__search {
+  flex: 1;
+  min-width: 220px;
+  padding: 0.65rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.88rem;
+}
+
+.admin-orders__select {
+  padding: 0.65rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  background: #fff;
+}
+
+.admin-orders__search:focus,
+.admin-orders__select:focus {
+  outline: none;
+  border-color: #FF6B00;
+}
+
+.admin-orders__table-wrap {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  overflow-x: auto;
+}
+
+.admin-orders__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.admin-orders__table th {
+  text-align: left;
+  padding: 0.9rem 1.25rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #999;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+
+.admin-orders__table td {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid #f2f2f2;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.admin-orders__table tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-orders__id {
+  font-weight: 700;
+}
+
+.admin-orders__id a {
+  color: #1a1a1a;
+  text-decoration: none;
+}
+
+.admin-orders__id a:hover {
+  color: #FF6B00;
+  text-decoration: underline;
+}
+
+.admin-orders__empty {
+  text-align: center;
+  padding: 2rem 1.25rem;
+  white-space: normal;
+}
+
+.admin-orders__badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #fff1e6;
+  color: #b45300;
+}
+
+.admin-orders__badge--done {
+  background: #e8f7ee;
+  color: #1a8f4c;
+}
+
+.admin-orders__toggle {
+  padding: 6px 14px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.admin-orders__toggle:hover:not(:disabled) {
+  border-color: #FF6B00;
+  color: #FF6B00;
+}
+
+.admin-orders__toggle:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.admin-orders__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+.admin-orders__pagination button {
+  padding: 8px 18px;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  background: #fff;
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.admin-orders__pagination button:hover:not(:disabled) {
+  border-color: #FF6B00;
+  color: #FF6B00;
+}
+
+.admin-orders__pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+@media (max-width: 760px) {
+  .admin-orders__search {
+    min-width: 0;
+    width: 100%;
+  }
+}

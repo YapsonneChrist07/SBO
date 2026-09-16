@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets
+.env
+.env.*
+
+# Logs
+*.log
+server.out.log
+server.err.log
+vite.out.log
+vite.err.log
+
+# Build output
+dist/
+dist-ssr/
+
+# Large DB dump - too large for git, not source
+sbo.sql
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.sw?

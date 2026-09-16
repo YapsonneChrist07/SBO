@@ -1,0 +1,25 @@
+.home__shop {
+  background: #f8f7f5;
+  padding: 3.5rem 2rem 4rem;
+  scroll-margin-top: 80px;
+}
+
+.home__shop-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 2.5rem;
+}
+
+@media (max-width: 900px) {
+  .home__shop-inner {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 640px) {
+  .home__shop {
+    padding: 2.5rem 1.25rem 3rem;
+  }
+}

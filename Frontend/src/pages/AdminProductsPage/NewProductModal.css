@@ -1,0 +1,167 @@
+.np-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.5);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 100px 1.5rem 3rem;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.np-modal {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 560px;
+  padding: 1.75rem;
+}
+
+.np-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+}
+
+.np-modal__head h2 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.np-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: #999;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.np-modal__close:hover {
+  color: #1a1a1a;
+}
+
+.np-modal__form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.np-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.np-modal__field--full {
+  grid-column: 1 / -1;
+}
+
+.np-modal__field span {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.np-modal__field input,
+.np-modal__field select,
+.np-modal__field textarea {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 0.88rem;
+  color: #1a1a1a;
+  background: #fff;
+}
+
+.np-modal__field input:focus,
+.np-modal__field select:focus,
+.np-modal__field textarea:focus {
+  outline: none;
+  border-color: #FF6B00;
+}
+
+.np-modal__field textarea {
+  resize: vertical;
+}
+
+.np-modal__dims-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+}
+
+.np-modal__dims-row input {
+  min-width: 0;
+}
+
+.np-modal__error {
+  grid-column: 1 / -1;
+  color: #e33;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.np-modal__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.np-modal__cancel {
+  padding: 10px 20px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.np-modal__cancel:hover {
+  border-color: #999;
+}
+
+.np-modal__submit {
+  padding: 10px 24px;
+  background: #FF6B00;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  cursor: pointer;
+}
+
+.np-modal__submit:hover {
+  background: #e85f00;
+}
+
+.np-modal__submit:disabled,
+.np-modal__cancel:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .np-modal__overlay {
+    padding: 90px 1rem 2rem;
+  }
+
+  .np-modal__form {
+    grid-template-columns: 1fr;
+  }
+
+  .np-modal__dims-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}

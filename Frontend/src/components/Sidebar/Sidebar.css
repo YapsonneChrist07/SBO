@@ -1,0 +1,206 @@
+.sidebar {
+  width: 230px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 86px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: linear-gradient(
+    170deg,
+    #c8c8c8 0%,
+    #b8b8b8 35%,
+    #a8a8a8 70%,
+    #989898 100%
+  );
+  border-radius: 20px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.sidebar__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #999;
+  padding: 0 0.5rem 0.75rem;
+  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar__header-icon {
+  color: #FF6B00;
+}
+
+.sidebar__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
+  color: #444;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.sidebar__item:hover {
+  background: #fff5ee;
+  color: #FF6B00;
+  transform: translateX(3px);
+}
+
+.sidebar__item:hover .sidebar__icon {
+  transform: scale(1.15);
+}
+
+.sidebar__item--active {
+  background: linear-gradient(135deg, #FF6B00 0%, #FF8C42 100%);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255, 107, 0, 0.35);
+  transform: translateX(3px);
+}
+
+.sidebar__item--active:hover {
+  background: linear-gradient(135deg, #e55a00 0%, #ff7a2e 100%);
+  color: #fff;
+}
+
+.sidebar__icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+.sidebar__label {
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.88rem;
+}
+
+.sidebar__count {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.07);
+  color: #888;
+  padding: 2px 7px;
+  border-radius: 50px;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar__item:hover .sidebar__count {
+  background: rgba(255, 107, 0, 0.12);
+  color: #FF6B00;
+}
+
+.sidebar__count--active {
+  background: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.sidebar__active-bar {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 2px 0 0 2px;
+}
+
+/* --- Promo card --- */
+.sidebar__promo {
+  margin-top: 1.5rem;
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.sidebar__promo-glow {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(255, 107, 0, 0.45), transparent 70%);
+  pointer-events: none;
+}
+
+.sidebar__promo-tag {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #FF6B00;
+  margin-bottom: 0.4rem;
+}
+
+.sidebar__promo-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.sidebar__promo-sub {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 1rem;
+}
+
+.sidebar__promo-btn {
+  background: linear-gradient(135deg, #FF6B00, #FF8C42);
+  color: #fff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.sidebar__promo-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    width: 100%;
+    position: static;
+  }
+}

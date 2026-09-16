@@ -1,0 +1,132 @@
+.product-grid {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-grid__header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.product-grid__title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.product-grid__count {
+  font-size: 0.82rem;
+  color: #aaa;
+  margin: 0;
+}
+
+.product-grid__sort {
+  display: flex;
+  align-items: center;
+}
+
+.product-grid__select {
+  padding: 9px 16px;
+  border: 1.5px solid #eee;
+  border-radius: 10px;
+  font-size: 0.85rem;
+  color: #555;
+  background: #fff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+
+.product-grid__select:focus {
+  border-color: #FF6B00;
+}
+
+.product-grid__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+}
+
+.product-grid__items > * {
+  flex: 1 1 220px;
+  max-width: 260px;
+}
+
+.product-grid__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #bbb;
+  text-align: center;
+}
+
+.product-grid__empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.product-grid__empty p {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.product-grid__error-detail {
+  margin-top: 0.5rem !important;
+  font-size: 0.8rem !important;
+  color: #d97706;
+}
+
+/* Skeleton loading cards */
+.product-grid__skeleton {
+  flex: 1 1 220px;
+  max-width: 260px;
+  height: 340px;
+  border-radius: 16px;
+  background: linear-gradient(100deg, #f2f2f2 30%, #e9e9e9 50%, #f2f2f2 70%);
+  background-size: 200% 100%;
+  animation: product-grid-shimmer 1.3s ease-in-out infinite;
+}
+
+@keyframes product-grid-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Load more */
+.product-grid__more {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.product-grid__more-btn {
+  padding: 12px 32px;
+  border: 1.5px solid #FF6B00;
+  border-radius: 999px;
+  background: #fff;
+  color: #FF6B00;
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.product-grid__more-btn:hover:not(:disabled) {
+  background: #FF6B00;
+  color: #fff;
+}
+
+.product-grid__more-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}

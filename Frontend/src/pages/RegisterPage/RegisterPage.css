@@ -1,0 +1,6 @@
+@import '../LoginPage/LoginPage.css';
+
+.auth-page--static {
+  animation: none;
+  background-position: 50% 50%;
+}

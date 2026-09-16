@@ -1,0 +1,142 @@
+.nearby-real {
+  max-width: 1200px;
+  margin: 4rem auto 0;
+  padding-top: 3rem;
+  border-top: 1px solid #eee;
+}
+
+.nearby-real__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.nearby-real__header h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.3rem;
+}
+
+.nearby-real__locate {
+  padding: 10px 22px;
+  background: #1a1a1a;
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+
+.nearby-real__locate:hover:not(:disabled) {
+  background: #FF6B00;
+}
+
+.nearby-real__locate:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.nearby-real__source {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 1.25rem;
+}
+
+.nearby-real__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+
+.real-place-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.real-place-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+}
+
+.real-place-card__photo {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: #f5f5f5;
+}
+
+.real-place-card__photo--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+}
+
+.real-place-card__body {
+  padding: 1rem 1.1rem 1.2rem;
+}
+
+.real-place-card__name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.4rem;
+}
+
+.real-place-card__address {
+  font-size: 0.8rem;
+  color: #999;
+  margin-bottom: 0.6rem;
+  line-height: 1.4;
+}
+
+.real-place-card__meta {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.real-place-card__rating {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.real-place-card__open {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 50px;
+}
+
+.real-place-card__open--yes {
+  background: #e8f7ee;
+  color: #1a8f4c;
+}
+
+.real-place-card__open--no {
+  background: #fdeaea;
+  color: #c0392b;
+}
+
+.nearby-real__disclaimer {
+  margin-top: 1.5rem;
+  font-size: 0.75rem;
+  color: #bbb;
+  text-align: center;
+}

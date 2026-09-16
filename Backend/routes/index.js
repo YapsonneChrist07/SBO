@@ -1,0 +1,34 @@
+const router = require('express').Router();
+
+router.use('/auth',              require('./auth.routes'));
+router.use('/products',          require('./product.routes'));
+router.use('/products/:id/images', require('./productimage.routes'));
+router.use('/clients',           require('./client.routes'));
+router.use('/suppliers',         require('./supplier.routes'));
+router.use('/brokers',           require('./broker.routes'));
+router.use('/transporters',      require('./transporter.routes'));
+router.use('/inventory',         require('./inventory.routes'));
+router.use('/sells',             require('./sell.routes'));
+router.use('/purchases',         require('./purchase.routes'));
+router.use('/cart',              require('./cart.routes'));
+router.use('/quotes',            require('./quote.routes'));
+router.use('/shipments',         require('./shipment.routes'));
+router.use('/deliveries',        require('./delivery.routes'));
+router.use('/payments',          require('./payment.routes'));
+router.use('/wishlists',         require('./wishlist.routes'));
+router.use('/promotions',        require('./promotion.routes'));
+router.use('/stores',            require('./store.routes'));
+router.use('/places',            require('./places.routes'));
+router.use('/reviews',           require('./review.routes'));
+router.use('/lookup',            require('./lookup.routes'));
+router.use('/dashboard',         require('./dashboard.routes'));
+router.use('/addresses',         require('./address.routes'));
+router.use('/locations',         require('./location.routes'));
+router.use('/commercial-agents', require('./commercialagent.routes'));
+router.use('/credit-cards',      require('./creditcard.routes'));
+router.use('/mobile-money',      require('./mobilemoney.routes'));
+router.use('/transactions',      require('./transaction.routes'));
+router.use('/transports',        require('./transport.routes'));
+router.use('/sell-price-policy', require('./sellpricepolicy.routes'));
+
+module.exports = router;

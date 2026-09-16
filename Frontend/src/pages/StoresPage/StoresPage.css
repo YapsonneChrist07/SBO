@@ -1,0 +1,145 @@
+.stores-page {
+  min-height: 100vh;
+  background: #f8f7f5;
+  padding: 120px 2rem 5rem;
+}
+
+.stores-page__header {
+  max-width: 1200px;
+  margin: 0 auto 2.5rem;
+  text-align: center;
+}
+
+.stores-page__header h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.stores-page__muted {
+  color: #999;
+}
+
+.stores-page__status {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 3rem 0;
+}
+
+.stores-page__locator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 50px;
+  padding: 0.6rem 1.1rem;
+}
+
+.stores-page__locator label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  white-space: nowrap;
+}
+
+.stores-page__locator select {
+  border: none;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #FF6B00;
+  cursor: pointer;
+}
+
+.stores-page__locator select:focus {
+  outline: none;
+}
+
+.stores-page__hint {
+  margin-top: 1rem;
+  font-size: 0.88rem;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.stores-page__grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.75rem;
+}
+
+.store-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 20px;
+  padding: 2rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.store-card--nearest {
+  border-color: #FF6B00;
+  box-shadow: 0 8px 24px rgba(255, 107, 0, 0.12);
+}
+
+.store-card__badge {
+  position: absolute;
+  top: -12px;
+  left: 1.75rem;
+  background: #FF6B00;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 50px;
+  letter-spacing: 0.2px;
+}
+
+.store-card__icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.store-card__name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #1a1a1a;
+  margin-bottom: 0.6rem;
+}
+
+.store-card__description {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 1.1rem;
+}
+
+.store-card__address,
+.store-card__phone {
+  font-size: 0.85rem;
+  color: #999;
+  margin-bottom: 0.35rem;
+}
+
+.store-card__phone {
+  font-weight: 600;
+  color: #FF6B00;
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .stores-page {
+    padding: 100px 1.25rem 3rem;
+  }
+}

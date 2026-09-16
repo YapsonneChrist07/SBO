@@ -1,0 +1,115 @@
+.admin-products__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-products__new-btn {
+  padding: 10px 22px;
+  background: #FF6B00;
+  border: none;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #fff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.admin-products__new-btn:hover {
+  background: #e85f00;
+}
+
+.admin-products__table th:first-child,
+.admin-products__table td.admin-products__thumb-cell {
+  width: 56px;
+}
+
+.admin-products__thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  background: #f5f5f5;
+}
+
+.admin-products__thumb--empty {
+  border: 1px dashed #ddd;
+}
+
+.admin-products__table td.admin-products__name {
+  max-width: 320px;
+  white-space: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-products__name a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.admin-products__name a:hover {
+  color: #FF6B00;
+  text-decoration: underline;
+}
+
+.admin-products__price-btn {
+  border: 1px solid transparent;
+  background: none;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 700;
+  color: #1a1a1a;
+  cursor: pointer;
+}
+
+.admin-products__price-btn:hover {
+  border-color: #ddd;
+}
+
+.admin-products__price-input {
+  width: 90px;
+  padding: 6px 10px;
+  border: 1px solid #FF6B00;
+  border-radius: 8px;
+  font-size: 0.85rem;
+}
+
+.admin-products__actions {
+  text-align: right;
+}
+
+.admin-products__confirm {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.admin-products__confirm-yes,
+.admin-products__confirm-no {
+  padding: 5px 12px;
+  border-radius: 50px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-products__confirm-yes {
+  border-color: #e33;
+  color: #e33;
+}
+
+.admin-products__confirm-no:hover {
+  border-color: #FF6B00;
+  color: #FF6B00;
+}

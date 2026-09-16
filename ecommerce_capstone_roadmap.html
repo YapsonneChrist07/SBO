@@ -1,0 +1,237 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans, sans-serif); }
+  .roadmap { padding: 1rem 0; }
+  .phase-card {
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: var(--color-background-primary);
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .phase-header:hover { background: var(--color-background-secondary); }
+  .phase-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .phase-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+  .phase-meta { font-size: 12px; color: var(--color-text-secondary); white-space: nowrap; }
+  .chevron { font-size: 14px; color: var(--color-text-tertiary); transition: transform 0.2s; }
+  .chevron.open { transform: rotate(180deg); }
+  .phase-body { display: none; border-top: 0.5px solid var(--color-border-tertiary); }
+  .phase-body.open { display: block; }
+  .task {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 16px;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+  }
+  .task:last-child { border-bottom: none; }
+  .task-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .task-info { flex: 1; }
+  .task-name { font-size: 13px; color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px; }
+  .task-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .task-time { font-size: 11px; color: var(--color-text-tertiary); white-space: nowrap; margin-top: 2px; }
+  .timeline-bar { display: flex; gap: 4px; padding: 12px 16px 0; }
+  .bar-seg { height: 6px; border-radius: 3px; flex: 1; }
+  .tip-box {
+    margin: 8px 16px 12px;
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 12px;
+    font-size: 12px;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+  .tip-label { font-weight: 500; color: var(--color-text-primary); margin-right: 4px; }
+  .summary-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .sum-card {
+    background: var(--color-background-secondary);
+    border-radius: var(--border-radius-md);
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .sum-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .sum-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+</style>
+
+<div class="roadmap">
+  <h2 style="font-size:18px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)">E-commerce rebuild — 8-month roadmap</h2>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:16px">React + Node.js/Express · Full e-commerce (payments, admin) · Intermediate level</p>
+
+  <div class="summary-row">
+    <div class="sum-card"><div class="sum-num">8</div><div class="sum-label">Months</div></div>
+    <div class="sum-card"><div class="sum-num">6</div><div class="sum-label">Phases</div></div>
+    <div class="sum-card"><div class="sum-num">26</div><div class="sum-label">Tasks</div></div>
+    <div class="sum-card"><div class="sum-num">~32</div><div class="sum-label">Weeks total</div></div>
+  </div>
+
+  <div id="phases"></div>
+</div>
+
+<script>
+const phases = [
+  {
+    num: 1,
+    title: "Research & Planning",
+    months: "Month 1",
+    weeks: "4 weeks",
+    color: "#534AB7",
+    bgColor: "#EEEDFE",
+    tip: "Don't skip this phase — a solid plan will save you weeks later. The more you analyse the existing site, the fewer surprises you'll hit during development.",
+    tasks: [
+      { name: "Audit the existing site", desc: "Map every page, feature, user flow, and data structure on sbo.liten3c.com. List what to keep, improve, or drop.", time: "~5 days" },
+      { name: "Define requirements", desc: "Write a Product Requirements Document (PRD): list all features — product catalogue, cart, checkout, payments, user accounts, admin dashboard.", time: "~3 days" },
+      { name: "Wireframes & UX design", desc: "Create low-fidelity wireframes for all key pages using Figma or Excalidraw. Focus on user flow, not visuals.", time: "~4 days" },
+      { name: "Choose tools & set up project", desc: "Decide on database (PostgreSQL recommended), payment gateway (Stripe), hosting (Railway/Render/Vercel), and set up your GitHub repo with a clear folder structure.", time: "~3 days" },
+    ]
+  },
+  {
+    num: 2,
+    title: "Environment Setup & Auth",
+    months: "Month 2",
+    weeks: "4 weeks",
+    color: "#0F6E56",
+    bgColor: "#E1F5EE",
+    tip: "Get auth right early — it touches everything else. Use JWT with refresh tokens and role-based access (customer vs admin) from day one.",
+    tasks: [
+      { name: "Project scaffolding", desc: "Bootstrap React (Vite) frontend + Node/Express backend. Set up ESLint, Prettier, folder structure (routes, controllers, models, components).", time: "~3 days" },
+      { name: "Database setup & schema design", desc: "Set up PostgreSQL (or MongoDB). Design your schema: users, products, categories, orders, payments, reviews.", time: "~4 days" },
+      { name: "User authentication", desc: "Build register/login with JWT. Implement refresh tokens, password hashing (bcrypt), and protected routes on both frontend and backend.", time: "~6 days" },
+      { name: "Role-based access control", desc: "Create customer vs admin roles. Protect admin routes. Add middleware for auth checks.", time: "~2 days" },
+    ]
+  },
+  {
+    num: 3,
+    title: "Core E-commerce Features",
+    months: "Month 3–4",
+    weeks: "8 weeks",
+    color: "#993C1D",
+    bgColor: "#FAECE7",
+    tip: "This is the heaviest phase — build the product catalogue and cart system robustly. A messy cart logic will haunt you during checkout. Test every edge case (out of stock, quantity limits, etc.).",
+    tasks: [
+      { name: "Product catalogue (backend)", desc: "Build CRUD API for products and categories. Add filtering, sorting, pagination, and search endpoints.", time: "~6 days" },
+      { name: "Product catalogue (frontend)", desc: "Build product listing page, product detail page, category navigation, and search bar with debounced API calls.", time: "~7 days" },
+      { name: "Shopping cart", desc: "Implement cart with local state (or Redux). Sync with backend for logged-in users. Handle quantity changes, removal, and price calculation.", time: "~5 days" },
+      { name: "User profile & order history", desc: "Build profile page, address management, and a page to view past orders and their status.", time: "~5 days" },
+      { name: "Wishlist & product reviews", desc: "Add wishlist functionality and a product review/rating system with validation.", time: "~5 days" },
+      { name: "Image handling", desc: "Set up image upload (Cloudinary or AWS S3). Implement product image galleries and optimize for performance.", time: "~4 days" },
+    ]
+  },
+  {
+    num: 4,
+    title: "Checkout & Payments",
+    months: "Month 5",
+    weeks: "4 weeks",
+    color: "#854F0B",
+    bgColor: "#FAEEDA",
+    tip: "Use Stripe's pre-built UI (Stripe Elements or Payment Links) to stay PCI-compliant without complexity. Always test with Stripe's test card numbers before going live.",
+    tasks: [
+      { name: "Checkout flow (frontend)", desc: "Build multi-step checkout: cart review → shipping address → payment → order confirmation. Use form validation at each step.", time: "~6 days" },
+      { name: "Stripe payment integration", desc: "Integrate Stripe for card payments. Handle PaymentIntents API, success/failure states, and webhook events for order confirmation.", time: "~7 days" },
+      { name: "Order management (backend)", desc: "Build order creation, status tracking (pending → processing → shipped → delivered), and email notifications via Nodemailer or SendGrid.", time: "~5 days" },
+      { name: "Coupon & discount system", desc: "Add promo code support: percentage or fixed discounts, expiry dates, usage limits.", time: "~3 days" },
+    ]
+  },
+  {
+    num: 5,
+    title: "Admin Dashboard",
+    months: "Month 6",
+    weeks: "4 weeks",
+    color: "#185FA5",
+    bgColor: "#E6F1FB",
+    tip: "The admin panel is what makes your project stand out as 'full e-commerce'. A clean dashboard with charts (Recharts or Chart.js) will impress your evaluators significantly.",
+    tasks: [
+      { name: "Admin layout & protected routes", desc: "Create a separate admin layout with sidebar navigation. Protect all admin routes with role middleware.", time: "~3 days" },
+      { name: "Product & category management", desc: "Build admin CRUD UI for products and categories: add, edit, delete, manage stock levels, upload images.", time: "~5 days" },
+      { name: "Order management dashboard", desc: "Admin view of all orders with status filters, search, and ability to update order status.", time: "~4 days" },
+      { name: "User management", desc: "List all users, view their orders, ban/unban accounts, promote to admin.", time: "~3 days" },
+      { name: "Analytics & reports", desc: "Add a dashboard with sales charts (daily/monthly revenue), top products, and order statistics using Recharts.", time: "~5 days" },
+    ]
+  },
+  {
+    num: 6,
+    title: "Polish, Testing & Deployment",
+    months: "Month 7–8",
+    weeks: "8 weeks",
+    color: "#3B6D11",
+    bgColor: "#EAF3DE",
+    tip: "Leave enough time here — bugs always surface when you test properly. Aim for at least 70% test coverage on critical backend paths (auth, orders, payments). Deploy early (Month 7) so you're not rushing at the deadline.",
+    tasks: [
+      { name: "Responsive design & UI polish", desc: "Ensure the full app is mobile-responsive. Polish UI consistency, loading states, empty states, and error messages.", time: "~7 days" },
+      { name: "Performance optimization", desc: "Add lazy loading, image optimization, React.memo, code splitting, and API response caching where needed.", time: "~4 days" },
+      { name: "Unit & integration testing", desc: "Write tests for critical backend APIs (auth, orders, payments) using Jest + Supertest. Test React components with React Testing Library.", time: "~8 days" },
+      { name: "Security hardening", desc: "Add rate limiting, input sanitization, helmet.js headers, HTTPS enforcement, and environment variable management.", time: "~4 days" },
+      { name: "Deployment", desc: "Deploy backend to Railway or Render, frontend to Vercel or Netlify. Set up CI/CD with GitHub Actions. Configure environment variables and domain.", time: "~5 days" },
+      { name: "Final QA & documentation", desc: "Full end-to-end user testing. Write API documentation (Swagger or Postman). Prepare README and project presentation.", time: "~5 days" },
+    ]
+  },
+];
+
+const container = document.getElementById('phases');
+
+phases.forEach((phase, i) => {
+  const card = document.createElement('div');
+  card.className = 'phase-card';
+
+  const barHTML = phases.map((p, j) =>
+    `<div class="bar-seg" style="background:${j === i ? p.color : 'var(--color-border-tertiary)'};opacity:${j === i ? 1 : 0.4}"></div>`
+  ).join('');
+
+  const tasksHTML = phase.tasks.map(t => `
+    <div class="task">
+      <div class="task-dot" style="background:${phase.color}"></div>
+      <div class="task-info">
+        <div class="task-name">${t.name}</div>
+        <div class="task-desc">${t.desc}</div>
+        <div class="task-time"><i class="ti ti-clock" style="font-size:11px;vertical-align:-1px" aria-hidden="true"></i> ${t.time}</div>
+      </div>
+    </div>
+  `).join('');
+
+  card.innerHTML = `
+    <div class="phase-header" onclick="togglePhase(${i})">
+      <span class="phase-badge" style="background:${phase.bgColor};color:${phase.color}">Phase ${phase.num}</span>
+      <span class="phase-title">${phase.title}</span>
+      <span class="phase-meta">${phase.months} · ${phase.weeks}</span>
+      <span class="chevron" id="chev-${i}">▾</span>
+    </div>
+    <div class="phase-body" id="body-${i}">
+      <div class="timeline-bar">${barHTML}</div>
+      ${tasksHTML}
+      <div class="tip-box"><span class="tip-label">💡 Tip:</span>${phase.tip}</div>
+    </div>
+  `;
+
+  container.appendChild(card);
+});
+
+function togglePhase(i) {
+  const body = document.getElementById(`body-${i}`);
+  const chev = document.getElementById(`chev-${i}`);
+  const isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  chev.classList.toggle('open', !isOpen);
+}
+
+togglePhase(0);
+</script>

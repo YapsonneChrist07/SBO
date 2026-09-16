@@ -1,0 +1,93 @@
+.admin-order-detail__status-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-order-detail__layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.admin-order-detail__side {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.admin-order-detail__items {
+  list-style: none;
+  margin: 0 0 1.25rem;
+  padding: 0;
+}
+
+.admin-order-detail__items li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #f2f2f2;
+  flex-wrap: wrap;
+}
+
+.admin-order-detail__items li:last-child {
+  border-bottom: none;
+}
+
+.admin-order-detail__item-name {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.88rem;
+  flex: 1;
+  min-width: 160px;
+}
+
+.admin-order-detail__item-name:hover {
+  color: #FF6B00;
+  text-decoration: underline;
+}
+
+.admin-order-detail__item-total {
+  font-weight: 800;
+  color: #FF6B00;
+  font-size: 0.88rem;
+  margin-left: auto;
+}
+
+.admin-order-detail__totals {
+  border-top: 1px solid #eee;
+  padding-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.admin-order-detail__totals > div {
+  display: flex;
+  justify-content: space-between;
+  color: #666;
+}
+
+.admin-order-detail__grand {
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: #1a1a1a !important;
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+}
+
+.admin-order-detail__field {
+  margin: 0 0 0.4rem;
+  font-size: 0.88rem;
+}
+
+@media (max-width: 900px) {
+  .admin-order-detail__layout {
+    grid-template-columns: 1fr;
+  }
+}

@@ -50,11 +50,20 @@ export default function AdminPage() {
   const stats = summary && [
     { label: 'Chiffre d\'affaires', value: formatPriceOrTBD(summary.sells?.totalRevenue) },
     { label: 'Commandes', value: summary.sells?.totalSells ?? 0 },
-    { label: 'Clients', value: summary.clients?.totalClients ?? 0 },
+    { label: 'Clients', value: summary.clients?.totalClients ?? 0, to: '/admin/customers' },
     { label: 'Produits', value: summary.products?.totalProducts ?? 0, to: '/admin/products' },
     { label: 'Stock faible', value: summary.lowStock?.lowStockCount ?? 0, to: '/admin/inventory' },
     { label: 'Fournisseurs', value: summary.suppliers?.totalSuppliers ?? 0 },
     { label: 'Coût achats', value: formatPriceOrTBD(summary.purchases?.totalPurchaseCost) },
+  ]
+
+  const quickLinks = [
+    { to: '/admin/customers', label: 'Clients' },
+    { to: '/admin/products', label: 'Produits' },
+    { to: '/admin/categories', label: 'Catégories' },
+    { to: '/admin/promotions', label: 'Promotions' },
+    { to: '/admin/inventory', label: 'Inventaire' },
+    { to: '/admin/orders', label: 'Commandes' },
   ]
 
   const lowStockCount = summary?.lowStock?.lowStockCount ?? 0
@@ -68,6 +77,12 @@ export default function AdminPage() {
         </div>
         <Link to="/account" className="admin-page__back">Mon compte</Link>
       </div>
+
+      <nav className="admin-quicklinks">
+        {quickLinks.map((l) => (
+          <Link key={l.to} to={l.to} className="admin-quicklinks__item">{l.label}</Link>
+        ))}
+      </nav>
 
       {loading && <p className="admin-page__muted">Chargement…</p>}
       {!loading && error && <p className="admin-page__muted">{error}</p>}

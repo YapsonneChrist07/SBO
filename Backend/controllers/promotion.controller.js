@@ -39,14 +39,28 @@ const getById = async (req, res) => {
 };
 
 const create = async (req, res) => {
-  const { brokerID, brokerContactID, startDate, endDate, items } = req.body;
+  const { startDate, endDate, items } = req.body;
+  let { brokerID, brokerContactID } = req.body;
+  if (!startDate || !endDate || !items?.length) {
+    return error(res, 'startDate, endDate and at least one item are required', 400);
+  }
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
+    // brokerID/brokerContactID are NOT NULL in the schema. The storefront has no broker
+    // picker, so default to the house broker (and its linked contact) when none is given.
+    if (!brokerID || !brokerContactID) {
+      const [[house]] = await conn.query(
+        `SELECT bc.brokerID, bc.contactID FROM brokercontact bc ORDER BY bc.startedDate LIMIT 1`
+      );
+      if (!house) throw new Error('No broker configured to attribute this promotion to');
+      brokerID = brokerID || house.brokerID;
+      brokerContactID = brokerContactID || house.contactID;
+    }
     const promotionID = generateId();
     await conn.query(
       'INSERT INTO promotion (promotionID, brokerID, brokerContactID, startDate, endDate) VALUES (?,?,?,?,?)',
-      [promotionID, brokerID || null, brokerContactID || null, startDate, endDate]
+      [promotionID, brokerID, brokerContactID, startDate, endDate]
     );
     for (const item of items) {
       await conn.query(

@@ -23,6 +23,28 @@
   margin-bottom: 0.35rem;
 }
 
+.admin-quicklinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+}
+
+.admin-quicklinks__item {
+  padding: 8px 18px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: #1a1a1a;
+}
+
+.admin-quicklinks__item:hover {
+  border-color: #FF6B00;
+  color: #FF6B00;
+}
+
 .admin-page__back {
   padding: 10px 22px;
   background: #fff;

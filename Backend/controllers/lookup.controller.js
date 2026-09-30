@@ -113,6 +113,112 @@ const getProductTypes = async (req, res) => {
   } catch (err) { return error(res, err.message); }
 };
 
+// Product hierarchy: admin CRUD
+const createDivision = async (req, res) => {
+  const { name, description } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const productDivisionID = generateId();
+    await db.query('INSERT INTO productdivision (productDivisionID, name, description) VALUES (?,?,?)',
+      [productDivisionID, name.trim(), description || null]);
+    return success(res, { productDivisionID }, 'Division créée', 201);
+  } catch (err) { return error(res, err.message); }
+};
+
+const updateDivision = async (req, res) => {
+  const { name, description } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const [result] = await db.query('UPDATE productdivision SET name=?, description=? WHERE productDivisionID=?',
+      [name.trim(), description || null, req.params.id]);
+    if (!result.affectedRows) return error(res, 'Division introuvable', 404);
+    return success(res, null, 'Division mise à jour');
+  } catch (err) { return error(res, err.message); }
+};
+
+const removeDivision = async (req, res) => {
+  try {
+    const [result] = await db.query('DELETE FROM productdivision WHERE productDivisionID=?', [req.params.id]);
+    if (!result.affectedRows) return error(res, 'Division introuvable', 404);
+    return success(res, null, 'Division supprimée');
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+      return error(res, 'Impossible de supprimer : des rayons utilisent encore cette division', 409);
+    }
+    return error(res, err.message);
+  }
+};
+
+const createLine = async (req, res) => {
+  const { name, description, productDivisionID } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const productLineID = generateId();
+    await db.query('INSERT INTO productline (productLineID, productDivisionID, name, description) VALUES (?,?,?,?)',
+      [productLineID, productDivisionID || null, name.trim(), description || null]);
+    return success(res, { productLineID }, 'Rayon créé', 201);
+  } catch (err) { return error(res, err.message); }
+};
+
+const updateLine = async (req, res) => {
+  const { name, description, productDivisionID } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const [result] = await db.query('UPDATE productline SET name=?, description=?, productDivisionID=? WHERE productLineID=?',
+      [name.trim(), description || null, productDivisionID || null, req.params.id]);
+    if (!result.affectedRows) return error(res, 'Rayon introuvable', 404);
+    return success(res, null, 'Rayon mis à jour');
+  } catch (err) { return error(res, err.message); }
+};
+
+const removeLine = async (req, res) => {
+  try {
+    const [result] = await db.query('DELETE FROM productline WHERE productLineID=?', [req.params.id]);
+    if (!result.affectedRows) return error(res, 'Rayon introuvable', 404);
+    return success(res, null, 'Rayon supprimé');
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+      return error(res, 'Impossible de supprimer : des catégories utilisent encore ce rayon', 409);
+    }
+    return error(res, err.message);
+  }
+};
+
+const createType = async (req, res) => {
+  const { name, description, productLineID } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const productTypeID = generateId();
+    await db.query('INSERT INTO producttype (productTypeID, productLineID, name, description) VALUES (?,?,?,?)',
+      [productTypeID, productLineID || null, name.trim(), description || null]);
+    return success(res, { productTypeID }, 'Catégorie créée', 201);
+  } catch (err) { return error(res, err.message); }
+};
+
+const updateType = async (req, res) => {
+  const { name, description, productLineID } = req.body;
+  if (!name?.trim()) return error(res, 'Le nom est requis', 400);
+  try {
+    const [result] = await db.query('UPDATE producttype SET name=?, description=?, productLineID=? WHERE productTypeID=?',
+      [name.trim(), description || null, productLineID || null, req.params.id]);
+    if (!result.affectedRows) return error(res, 'Catégorie introuvable', 404);
+    return success(res, null, 'Catégorie mise à jour');
+  } catch (err) { return error(res, err.message); }
+};
+
+const removeType = async (req, res) => {
+  try {
+    const [result] = await db.query('DELETE FROM producttype WHERE productTypeID=?', [req.params.id]);
+    if (!result.affectedRows) return error(res, 'Catégorie introuvable', 404);
+    return success(res, null, 'Catégorie supprimée');
+  } catch (err) {
+    if (err.code === 'ER_ROW_IS_REFERENCED_2' || err.code === 'ER_ROW_IS_REFERENCED') {
+      return error(res, 'Impossible de supprimer : des produits utilisent encore cette catégorie', 409);
+    }
+    return error(res, err.message);
+  }
+};
+
 const getBrands = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM brand ORDER BY name');
@@ -156,4 +262,7 @@ module.exports = {
   getWeightLimits, getVolumeLimits,
   getProductDivisions, getProductLines, getProductTypes, getBrands,
   getClientTypes, getSupplierTypes, getBrokerTypes, getTransporterTypes,
+  createDivision, updateDivision, removeDivision,
+  createLine, updateLine, removeLine,
+  createType, updateType, removeType,
 };

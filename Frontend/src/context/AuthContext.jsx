@@ -31,18 +31,20 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [token])
 
-  const login = async (username, password) => {
-    const { token: newToken, user: loggedInUser } = await loginUser({ username, password })
+  const login = async (username, password, role = 'client') => {
+    const { token: newToken, user: loggedInUser } = await loginUser({ username, password, role })
     localStorage.setItem(STORAGE_KEY, newToken)
     setToken(newToken)
     setUser(loggedInUser)
+    return loggedInUser
   }
 
   const register = (payload) => registerUser(payload)
 
   const updateProfile = async (payload) => {
     const updated = await updateProfileApi(payload, token)
-    setUser(updated)
+    // The profile endpoint only returns contact fields — keep role/admin/organization info.
+    setUser(prev => ({ ...prev, ...updated }))
     return updated
   }
 

@@ -9,11 +9,16 @@ router.post('/register', [
   body('lastName').notEmpty(),
   body('username').notEmpty().isLength({ min: 3 }),
   body('password').isLength({ min: 6 }),
+  body('role').optional().isIn(ctrl.ROLES),
+  // supplier.name / transporter.name are varchar(45), businessDescription varchar(250)
+  body('companyName').if(body('role').isIn(['supplier', 'transporter'])).trim().notEmpty().isLength({ max: 45 }),
+  body('businessDescription').optional({ checkFalsy: true }).isLength({ max: 250 }),
 ], validate, ctrl.register);
 
 router.post('/login', [
   body('username').notEmpty(),
   body('password').notEmpty(),
+  body('role').optional().isIn(ctrl.ROLES),
 ], validate, ctrl.login);
 
 router.get('/me', authenticate, ctrl.getMe);

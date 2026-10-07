@@ -1,0 +1,71 @@
+.new-purchase {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.new-purchase__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.new-purchase__field {
+  flex: 1 1 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+}
+
+.new-purchase__field select,
+.new-purchase__field input,
+.new-purchase__table input {
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid #e4e2df;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  background: #fff;
+}
+
+.new-purchase__table input {
+  width: 100px;
+}
+
+.new-purchase__field select:focus,
+.new-purchase__field input:focus,
+.new-purchase__table input:focus {
+  outline: none;
+  border-color: #FF6B00;
+}
+
+.new-purchase__line--active td {
+  background: #fff8f2;
+}
+
+.new-purchase__summary {
+  margin: 1.5rem 0 1rem auto;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.88rem;
+  color: #555;
+}
+
+.new-purchase__summary > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.new-purchase__grand {
+  padding-top: 0.5rem;
+  border-top: 1px solid #eee;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1a1a1a;
+}

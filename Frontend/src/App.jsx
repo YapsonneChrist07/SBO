@@ -23,6 +23,14 @@ import AdminPromotionsPage from './pages/AdminPromotionsPage/AdminPromotionsPage
 import AdminCategoriesPage from './pages/AdminCategoriesPage/AdminCategoriesPage'
 import AdminCustomersPage from './pages/AdminCustomersPage/AdminCustomersPage'
 import AdminCustomerDetailPage from './pages/AdminCustomerDetailPage/AdminCustomerDetailPage'
+import AdminPurchasesPage from './pages/AdminPurchasesPage/AdminPurchasesPage'
+import AdminNewPurchasePage from './pages/AdminNewPurchasePage/AdminNewPurchasePage'
+import AdminPurchaseDetailPage from './pages/AdminPurchaseDetailPage/AdminPurchaseDetailPage'
+import SupplierProductsPage from './pages/SupplierProductsPage/SupplierProductsPage'
+import SupplierProductDetailPage from './pages/SupplierProductDetailPage/SupplierProductDetailPage'
+import SupplierOrdersPage from './pages/SupplierOrdersPage/SupplierOrdersPage'
+import SupplierOrderDetailPage from './pages/SupplierOrderDetailPage/SupplierOrderDetailPage'
+import SupplierReviewsPage from './pages/SupplierReviewsPage/SupplierReviewsPage'
 import WishlistPage from './pages/WishlistPage/WishlistPage'
 import LoginPage from './pages/LoginPage/LoginPage'
 import RegisterPage from './pages/RegisterPage/RegisterPage'
@@ -69,6 +77,14 @@ export default function App() {
               <Route path="/admin/categories" element={<AdminCategoriesPage />} />
               <Route path="/admin/customers" element={<AdminCustomersPage />} />
               <Route path="/admin/customers/:id" element={<AdminCustomerDetailPage />} />
+              <Route path="/admin/purchases" element={<AdminPurchasesPage />} />
+              <Route path="/admin/purchases/new" element={<AdminNewPurchasePage />} />
+              <Route path="/admin/purchases/:id" element={<AdminPurchaseDetailPage />} />
+              <Route path="/supplier/products" element={<SupplierProductsPage />} />
+              <Route path="/supplier/products/:id" element={<SupplierProductDetailPage />} />
+              <Route path="/supplier/orders" element={<SupplierOrdersPage />} />
+              <Route path="/supplier/orders/:id" element={<SupplierOrderDetailPage />} />
+              <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />

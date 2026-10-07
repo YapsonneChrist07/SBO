@@ -90,7 +90,14 @@
   color: #444;
 }
 
-.auth-form__field input {
+.auth-form__field em {
+  font-style: normal;
+  font-weight: 400;
+  color: #999;
+}
+
+.auth-form__field input,
+.auth-form__field textarea {
   padding: 0.7rem 0.9rem;
   border: 1.5px solid #e4e2df;
   border-radius: 8px;
@@ -99,7 +106,12 @@
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.auth-form__field input:focus {
+.auth-form__field textarea {
+  resize: vertical;
+}
+
+.auth-form__field input:focus,
+.auth-form__field textarea:focus {
   outline: none;
   border-color: #FF6B00;
   box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.12);

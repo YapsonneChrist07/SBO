@@ -1,0 +1,60 @@
+.role-selector {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.role-selector__legend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #444;
+  margin-bottom: 0.4rem;
+}
+
+.role-selector__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+.role-selector__option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.4rem;
+  border: 1.5px solid #e4e2df;
+  border-radius: 10px;
+  color: #777;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+.role-selector__option:hover {
+  border-color: #FFB27A;
+  color: #444;
+}
+
+.role-selector__option input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.role-selector__option--active,
+.role-selector__option--active:hover {
+  border-color: #FF6B00;
+  background: #fff6ef;
+  color: #FF6B00;
+}
+
+.role-selector__option:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.25);
+}

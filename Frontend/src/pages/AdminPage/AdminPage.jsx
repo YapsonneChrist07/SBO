@@ -54,7 +54,7 @@ export default function AdminPage() {
     { label: 'Produits', value: summary.products?.totalProducts ?? 0, to: '/admin/products' },
     { label: 'Stock faible', value: summary.lowStock?.lowStockCount ?? 0, to: '/admin/inventory' },
     { label: 'Fournisseurs', value: summary.suppliers?.totalSuppliers ?? 0 },
-    { label: 'Coût achats', value: formatPriceOrTBD(summary.purchases?.totalPurchaseCost) },
+    { label: 'Coût achats', value: formatPriceOrTBD(summary.purchases?.totalPurchaseCost), to: '/admin/purchases' },
   ]
 
   const quickLinks = [
@@ -64,6 +64,7 @@ export default function AdminPage() {
     { to: '/admin/promotions', label: 'Promotions' },
     { to: '/admin/inventory', label: 'Inventaire' },
     { to: '/admin/orders', label: 'Commandes' },
+    { to: '/admin/purchases', label: 'Achats fournisseurs' },
   ]
 
   const lowStockCount = summary?.lowStock?.lowStockCount ?? 0

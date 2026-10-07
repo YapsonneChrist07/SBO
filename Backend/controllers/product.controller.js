@@ -106,8 +106,9 @@ const getById = async (req, res) => {
     const product = { ...rows[0], hasImage: !!rows[0].hasImage, hasVideo: !!rows[0].hasVideo };
 
     const [images] = await db.query('SELECT imageID, productID FROM productimage WHERE productID = ?', [req.params.id]);
+    // Public endpoint: supplier names only — never the wholesale price SBO pays them.
     const [suppliers] = await db.query(
-      `SELECT s.supplierID, s.name, ps.supplierUnitPrice, ps.supplierProductCode
+      `SELECT s.supplierID, s.name
        FROM productsupplier ps JOIN supplier s ON s.supplierID = ps.supplierID
        WHERE ps.productID = ?`,
       [req.params.id]

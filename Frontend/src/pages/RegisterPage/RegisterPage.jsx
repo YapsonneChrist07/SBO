@@ -1,9 +1,18 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
+import RoleSelector from '../../components/RoleSelector/RoleSelector'
 import './RegisterPage.css'
 
+const COMPANY_LABELS = {
+  supplier: { name: "Nom de l'entreprise fournisseur", description: 'Ce que vous fournissez' },
+  transporter: { name: "Nom de l'entreprise de transport", description: 'Zones et type de transport' },
+}
+
 const initialForm = {
+  role: 'client',
+  companyName: '',
+  businessDescription: '',
   firstName: '',
   lastName: '',
   username: '',
@@ -19,6 +28,7 @@ export default function RegisterPage() {
   const [form, setForm] = useState(initialForm)
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const isCompany = form.role !== 'client'
 
   const handleChange = (e) => {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -40,12 +50,16 @@ export default function RegisterPage() {
       setError('Les mots de passe ne correspondent pas.')
       return
     }
+    if (isCompany && !form.companyName.trim()) {
+      setError("Le nom de l'entreprise est obligatoire.")
+      return
+    }
 
     setSubmitting(true)
     try {
-      const { confirmPassword, ...payload } = form
-      await register(payload)
-      await login(form.username, form.password)
+      const { confirmPassword, companyName, businessDescription, ...payload } = form
+      await register(isCompany ? { ...payload, companyName, businessDescription } : payload)
+      await login(form.username, form.password, form.role)
       navigate('/')
     } catch (err) {
       setError(err.message)
@@ -63,6 +77,25 @@ export default function RegisterPage() {
         {error && <div className="auth-card__error">{error}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
+          <RoleSelector
+            value={form.role}
+            onChange={(role) => setForm(prev => ({ ...prev, role }))}
+            legend="Je crée un compte"
+          />
+
+          {isCompany && (
+            <>
+              <label className="auth-form__field">
+                <span>{COMPANY_LABELS[form.role].name}</span>
+                <input name="companyName" value={form.companyName} onChange={handleChange} required maxLength={45} />
+              </label>
+              <label className="auth-form__field">
+                <span>{COMPANY_LABELS[form.role].description} <em>(facultatif)</em></span>
+                <textarea name="businessDescription" value={form.businessDescription} onChange={handleChange} rows={2} maxLength={250} />
+              </label>
+            </>
+          )}
+
           <div className="auth-form__row">
             <label className="auth-form__field">
               <span>Prénom</span>

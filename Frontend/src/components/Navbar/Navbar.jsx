@@ -13,6 +13,9 @@ export default function Navbar() {
   const location = useLocation()
   const navigate = useNavigate()
   const isHome = location.pathname === '/'
+  const isPartner = user?.role === 'supplier' || user?.role === 'transporter'
+  // Only the shop home page has the hero video the transparent navbar sits over.
+  const overHero = isHome && !isPartner
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const searchInputRef = useRef(null)
@@ -24,11 +27,11 @@ export default function Navbar() {
   const linkClass = (path) => `navbar__link${isActive(path) ? ' active' : ''}`
 
   useEffect(() => {
-    if (!isHome) return
+    if (!overHero) return
     const onScroll = () => setScrolled(window.scrollY > 60)
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
-  }, [isHome])
+  }, [overHero])
 
   const handleLogout = () => {
     logout()
@@ -59,9 +62,17 @@ export default function Navbar() {
     setSearchTerm('')
   }
 
-  const opaque = scrolled || !isHome || menuOpen
+  const opaque = scrolled || !overHero || menuOpen
 
-  const navLinks = (
+  const navLinks = user?.role === 'supplier' ? (
+    <>
+      <li><Link to="/" className={linkClass('/')}>Mon espace</Link></li>
+      <li><Link to="/supplier/products" className={linkClass('/supplier/products')}>Mes produits</Link></li>
+      <li><Link to="/supplier/orders" className={linkClass('/supplier/orders')}>Commandes</Link></li>
+      <li><Link to="/supplier/reviews" className={linkClass('/supplier/reviews')}>Avis</Link></li>
+      <li><Link to="/products" className={linkClass('/products')}>Catalogue SBO</Link></li>
+    </>
+  ) : (
     <>
       <li><Link to="/" className={linkClass('/')}>Home</Link></li>
       <li><Link to="/products" className={linkClass('/products')}>Products</Link></li>
@@ -122,6 +133,7 @@ export default function Navbar() {
               </svg>
             </button>
           )}
+          {!isPartner && <>
           <Link to="/wishlist" className="navbar__icon-btn navbar__cart" title="Liste de souhaits">
             <svg width="20" height="20" viewBox="0 0 24 24" fill={wishlistCount > 0 ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
               <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
@@ -135,6 +147,7 @@ export default function Navbar() {
             </svg>
             {cartCount > 0 && <span className="navbar__cart-badge">{cartCount}</span>}
           </Link>
+          </>}
 
           <div className="navbar__auth-desktop">
             {authControls}

@@ -9,10 +9,37 @@ const { sendPasswordResetEmail } = require('../utils/mailer');
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 const hashToken = (token) => crypto.createHash('sha256').update(token).digest('hex');
 
+const ROLES = ['client', 'supplier', 'transporter'];
+const ROLE_LABELS = { supplier: 'fournisseur', transporter: 'transporteur' };
+
+// Suppliers and transporters are companies; a contact acts on behalf of one through
+// the suppliercontact / transportercontact link tables. Returns null when the contact
+// isn't (or is no longer) linked to an organization of that role.
+const findOrganization = async (contactID, role) => {
+  const tables = {
+    supplier: { org: 'supplier', link: 'suppliercontact', id: 'supplierID' },
+    transporter: { org: 'transporter', link: 'transportercontact', id: 'transporterID' },
+  }[role];
+  if (!tables) return null;
+
+  const [rows] = await db.query(
+    `SELECT o.${tables.id} AS organizationID, o.name AS organizationName
+     FROM ${tables.link} l
+     JOIN ${tables.org} o ON o.${tables.id} = l.${tables.id}
+     WHERE l.contactID = ? AND (l.endedDate IS NULL OR l.endedDate > NOW())
+     ORDER BY l.startedDate DESC
+     LIMIT 1`,
+    [contactID]
+  );
+  return rows[0] || null;
+};
+
 const register = async (req, res) => {
-  const { firstName, lastName, username, password, email, phone, nickName } = req.body;
+  const { firstName, lastName, username, password, email, phone, nickName, companyName, businessDescription } = req.body;
+  const role = req.body.role || 'client';
+  const conn = await db.getConnection();
   try {
-    const [existing] = await db.query('SELECT contactID FROM contact WHERE username = ?', [username]);
+    const [existing] = await conn.query('SELECT contactID FROM contact WHERE username = ?', [username]);
     if (existing.length) return error(res, 'Username already taken', 409);
 
     const hashed = await bcrypt.hash(password, 10);
@@ -20,29 +47,61 @@ const register = async (req, res) => {
 
     // contact.addressID is NOT NULL, but we don't collect an address at signup —
     // create a placeholder the user fills in for real at checkout.
-    const [[defaultCity]] = await db.query('SELECT cityID FROM city ORDER BY cityID LIMIT 1');
+    const [[defaultCity]] = await conn.query('SELECT cityID FROM city ORDER BY cityID LIMIT 1');
     if (!defaultCity) return error(res, 'No city configured for new addresses', 500);
+
+    await conn.beginTransaction();
+
     const addressID = generateId();
-    await db.query(
+    await conn.query(
       'INSERT INTO address (addressID, cityID, phone, email) VALUES (?, ?, ?, ?)',
       [addressID, defaultCity.cityID, phone || null, email || null]
     );
 
-    await db.query(
+    await conn.query(
       `INSERT INTO contact (contactID, addressID, firstName, lastName, username, password, nickName, phone, email)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [contactID, addressID, firstName, lastName, username, hashed, nickName || null, phone || null, email || null]
     );
 
-    return success(res, { contactID }, 'Registration successful', 201);
+    // Supplier/transporter signups also create the company and link the contact to it.
+    // The company gets its own address row (transporter.addressID is NOT NULL) so that
+    // editing the person's delivery address later doesn't move the company.
+    if (role !== 'client') {
+      const orgAddressID = generateId();
+      await conn.query(
+        'INSERT INTO address (addressID, cityID, phone, email) VALUES (?, ?, ?, ?)',
+        [orgAddressID, defaultCity.cityID, phone || null, email || null]
+      );
+
+      const organizationID = generateId();
+      const org = role === 'supplier'
+        ? { table: 'supplier', link: 'suppliercontact', id: 'supplierID' }
+        : { table: 'transporter', link: 'transportercontact', id: 'transporterID' };
+      await conn.query(
+        `INSERT INTO ${org.table} (${org.id}, addressID, name, businessDescription) VALUES (?, ?, ?, ?)`,
+        [organizationID, orgAddressID, companyName.trim(), businessDescription || null]
+      );
+      await conn.query(
+        `INSERT INTO ${org.link} (${org.id}, contactID, startedDate) VALUES (?, ?, NOW())`,
+        [organizationID, contactID]
+      );
+    }
+
+    await conn.commit();
+    return success(res, { contactID, role }, 'Registration successful', 201);
   } catch (err) {
+    await conn.rollback();
     console.error(err);
     return error(res, err.message);
+  } finally {
+    conn.release();
   }
 };
 
 const login = async (req, res) => {
   const { username, password } = req.body;
+  const role = req.body.role || 'client';
   try {
     const [rows] = await db.query(
       'SELECT c.*, u.adminEntity FROM contact c LEFT JOIN usercreator u ON u.contactID = c.contactID WHERE c.username = ?',
@@ -54,14 +113,30 @@ const login = async (req, res) => {
     const valid = await bcrypt.compare(password, contact.password);
     if (!valid) return error(res, 'Invalid credentials', 401);
 
+    // Anyone can shop as a client; the supplier/transporter spaces require the
+    // account to actually be linked to such a company.
+    let organization = null;
+    if (role !== 'client') {
+      organization = await findOrganization(contact.contactID, role);
+      if (!organization) {
+        return error(res, `Ce compte n'est pas enregistré comme ${ROLE_LABELS[role]}.`, 403);
+      }
+    }
+
     const token = jwt.sign(
-      { contactID: contact.contactID, username: contact.username, adminEntity: contact.adminEntity },
+      {
+        contactID: contact.contactID,
+        username: contact.username,
+        adminEntity: contact.adminEntity,
+        role,
+        organizationID: organization?.organizationID || null,
+      },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
     const { password: _, ...user } = contact;
-    return success(res, { token, user }, 'Login successful');
+    return success(res, { token, user: { ...user, role, ...organization } }, 'Login successful');
   } catch (err) {
     console.error(err);
     return error(res, err.message);
@@ -81,7 +156,16 @@ const getMe = async (req, res) => {
       [req.user.contactID]
     );
     if (!rows.length) return error(res, 'User not found', 404);
-    return success(res, rows[0]);
+
+    // Tokens issued before roles existed carry no role — treat them as clients.
+    const role = req.user.role || 'client';
+    let organization = null;
+    if (role !== 'client') {
+      organization = await findOrganization(req.user.contactID, role);
+      // The contact was unlinked from the company since logging in: force a fresh login.
+      if (!organization) return error(res, `Ce compte n'est plus enregistré comme ${ROLE_LABELS[role]}.`, 401);
+    }
+    return success(res, { ...rows[0], role, ...organization });
   } catch (err) {
     return error(res, err.message);
   }
@@ -174,4 +258,4 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, getMe, updateMe, changePassword, forgotPassword, resetPassword };
+module.exports = { ROLES, register, login, getMe, updateMe, changePassword, forgotPassword, resetPassword };

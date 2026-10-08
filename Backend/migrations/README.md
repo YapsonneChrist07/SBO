@@ -1,13 +1,18 @@
 # Database migrations
 
-Schema changes made on top of `sbo.sql` (repo root). On a fresh install, import
-`sbo.sql` first, then run these files in numeric order:
+Schema changes on top of the legacy `sbo.sql` dump (repo root, not in git; it creates a
+database named `sbo`). After importing `sbo.sql`, run every file once, in numeric order:
 
 ```sh
+mysql -u <user> -p <database> < Backend/migrations/000_legacy_schema_fixes.sql
 mysql -u <user> -p <database> < Backend/migrations/001_passwordreset.sql
 mysql -u <user> -p <database> < Backend/migrations/002_purchase_receiving.sql
 mysql -u <user> -p <database> < Backend/migrations/003_shipment_for_web_orders.sql
 mysql -u <user> -p <database> < Backend/migrations/004_tariff_per_transporter.sql
 ```
 
-Each file is applied once; there is no migration tracking table.
+`sbo.sql` + these migrations gives exactly the schema in `../database/schema.sql`. A database
+created from `schema.sql` already includes them all.
+
+Each file is applied once; there is no migration tracking table. After adding a migration,
+run `npm run db:export-schema` so `database/schema.sql` stays in sync.

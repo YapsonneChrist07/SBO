@@ -15,8 +15,6 @@ const db = require('../config/db');
 
 const DEMO_PASSWORD = 'DemoSBO2026';
 const DEMO_CITY = 'CITY_1'; // Grand-Bassam
-const REVIEWER = 'CNT_1'; // SBO's house broker contact (seed data)
-const HOUSE_BROKER = 'BRK_1';
 const TRANSPORTER = 'TPR_1';
 
 // Each supplier offers the first products (by ID) of the listed product lines, at a
@@ -108,6 +106,10 @@ async function seed(conn) {
     return;
   }
 
+  // SBO's house broker and its contact: demo orders are placed by it and reviews written by it.
+  const [[house]] = await conn.query('SELECT brokerID, contactID FROM brokercontact ORDER BY startedDate LIMIT 1');
+  if (!house) throw new Error('No house broker (brokercontact) in the database — import the reference data first.');
+
   const hash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const [stores] = await conn.query('SELECT storeID, storeName, locationID FROM store');
   const storeByName = Object.fromEntries(stores.map((s) => [s.storeName, s]));
@@ -184,7 +186,7 @@ async function seed(conn) {
                                supplierID, supplierContactID, storeID, purchaseDate, receivedDate,
                                subTotal, transportCost, tax, total)
          VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
-        [purchaseID, HOUSE_BROKER, REVIEWER, order.transportCost ? TRANSPORTER : null,
+        [purchaseID, house.brokerID, house.contactID, order.transportCost ? TRANSPORTER : null,
          id.supplier, id.contact, store.storeID, date, order.received ? daysAgo(Math.max(order.daysAgo - 3, 0)) : null,
          subTotal, order.transportCost, round2(subTotal + order.transportCost)]
       );
@@ -208,7 +210,7 @@ async function seed(conn) {
       await conn.query(
         `INSERT INTO supplierreview (supplierReviewID, supplierID, contactID, ratingValue, evaluatedDate, reviewMessage)
          VALUES (?, ?, ?, ?, ?, ?)`,
-        [`DEMOREV_${s.key}_${n + 1}`, id.supplier, REVIEWER, review.rating, daysAgo(review.daysAgo), review.message]
+        [`DEMOREV_${s.key}_${n + 1}`, id.supplier, house.contactID, review.rating, daysAgo(review.daysAgo), review.message]
       );
     }
 

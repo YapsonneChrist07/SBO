@@ -23,6 +23,7 @@ import AdminPromotionsPage from './pages/AdminPromotionsPage/AdminPromotionsPage
 import AdminCategoriesPage from './pages/AdminCategoriesPage/AdminCategoriesPage'
 import AdminCustomersPage from './pages/AdminCustomersPage/AdminCustomersPage'
 import AdminCustomerDetailPage from './pages/AdminCustomerDetailPage/AdminCustomerDetailPage'
+import AdminPartnersPage from './pages/AdminPartnersPage/AdminPartnersPage'
 import AdminPurchasesPage from './pages/AdminPurchasesPage/AdminPurchasesPage'
 import AdminNewPurchasePage from './pages/AdminNewPurchasePage/AdminNewPurchasePage'
 import AdminPurchaseDetailPage from './pages/AdminPurchaseDetailPage/AdminPurchaseDetailPage'
@@ -82,6 +83,7 @@ export default function App() {
               <Route path="/admin/categories" element={<AdminCategoriesPage />} />
               <Route path="/admin/customers" element={<AdminCustomersPage />} />
               <Route path="/admin/customers/:id" element={<AdminCustomerDetailPage />} />
+              <Route path="/admin/partners" element={<AdminPartnersPage />} />
               <Route path="/admin/purchases" element={<AdminPurchasesPage />} />
               <Route path="/admin/purchases/new" element={<AdminNewPurchasePage />} />
               <Route path="/admin/purchases/:id" element={<AdminPurchaseDetailPage />} />

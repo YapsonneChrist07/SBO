@@ -38,6 +38,7 @@
   font-weight: 600;
   font-size: 0.82rem;
   color: #1a1a1a;
+  text-decoration: none;
 }
 
 .admin-quicklinks__item:hover {

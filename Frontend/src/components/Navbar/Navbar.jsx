@@ -64,7 +64,12 @@ export default function Navbar() {
 
   const opaque = scrolled || !overHero || menuOpen
 
-  const navLinks = user?.role === 'supplier' ? (
+  // A partner whose company awaits SBO's approval only has their home page.
+  const navLinks = isPartner && user.organizationStatus !== 'active' ? (
+    <>
+      <li><Link to="/" className={linkClass('/')}>Mon espace</Link></li>
+    </>
+  ) : user?.role === 'supplier' ? (
     <>
       <li><Link to="/" className={linkClass('/')}>Mon espace</Link></li>
       <li><Link to="/supplier/products" className={linkClass('/supplier/products')}>Mes produits</Link></li>

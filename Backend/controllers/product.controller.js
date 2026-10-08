@@ -110,7 +110,7 @@ const getById = async (req, res) => {
     const [suppliers] = await db.query(
       `SELECT s.supplierID, s.name
        FROM productsupplier ps JOIN supplier s ON s.supplierID = ps.supplierID
-       WHERE ps.productID = ?`,
+       WHERE ps.productID = ? AND s.status = 'active'`,
       [req.params.id]
     );
     const [reviews] = await db.query(

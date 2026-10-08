@@ -5,6 +5,7 @@ router.use('/products',          require('./product.routes'));
 router.use('/products/:id/images', require('./productimage.routes'));
 router.use('/clients',           require('./client.routes'));
 router.use('/customers',         require('./customer.routes'));
+router.use('/partners',          require('./partner.routes'));
 router.use('/suppliers',         require('./supplier.routes'));
 router.use('/supplier-portal',   require('./supplierportal.routes'));
 router.use('/brokers',           require('./broker.routes'));

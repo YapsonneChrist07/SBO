@@ -79,12 +79,13 @@ const ROLE_CONTENT = {
 export default function PartnerHomePage() {
   const { user, token } = useAuth()
   const content = ROLE_CONTENT[user.role]
+  const active = user.organizationStatus === 'active'
   const [summary, setSummary] = useState(null)
 
   useEffect(() => {
-    if (!content.loadSummary) return
+    if (!active || !content.loadSummary) return
     content.loadSummary(token).then(setSummary).catch(() => setSummary(null))
-  }, [content, token])
+  }, [active, content, token])
 
   return (
     <main className="partner-home">
@@ -96,20 +97,31 @@ export default function PartnerHomePage() {
         </p>
       </header>
 
+      {!active && (
+        <div className="partner-home__pending" role="status">
+          <h2>Votre compte est en cours de validation</h2>
+          <p>
+            Merci pour votre inscription&nbsp;! L’équipe SBO vérifie les informations de votre entreprise.
+            Votre espace s’ouvrira dès que votre compte sera validé — reconnectez-vous à ce moment-là.
+            En attendant, vous pouvez parcourir la boutique en vous connectant en tant que client.
+          </p>
+        </div>
+      )}
+
       <section className="partner-home__grid">
         {content.sections.map((section) => {
           const body = (
             <>
-              {section.to ? (
+              {active && section.to ? (
                 <span className="partner-home__stat">{summary ? section.stat(summary) : '…'}</span>
               ) : (
-                <span className="partner-home__badge">Bientôt disponible</span>
+                <span className="partner-home__badge">{active ? 'Bientôt disponible' : 'Après validation'}</span>
               )}
               <h2>{section.title}</h2>
               <p>{section.text}</p>
             </>
           )
-          return section.to ? (
+          return active && section.to ? (
             <Link key={section.title} to={section.to} className="partner-home__card partner-home__card--link">
               {body}
               <span className="partner-home__cta">Ouvrir →</span>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getDashboardSummary, getSalesTrend } from '../../api/dashboard'
+import { getPartnerSummary } from '../../api/partners'
 import { formatPriceOrTBD } from '../../utils/format'
 import BarChart from '../../components/charts/BarChart'
 import './AdminPage.css'
@@ -23,6 +24,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [salesTrend, setSalesTrend] = useState(null)
+  const [partners, setPartners] = useState(null)
 
   useEffect(() => {
     if (authLoading) return
@@ -41,6 +43,7 @@ export default function AdminPage() {
       .catch((err) => setError(err.message || 'Impossible de charger le tableau de bord'))
       .finally(() => setLoading(false))
     getSalesTrend(token).then(setSalesTrend).catch(() => setSalesTrend([]))
+    getPartnerSummary(token).then(setPartners).catch(() => setPartners(null))
   }, [token, user])
 
   if (authLoading || !user || !user.adminEntity) {
@@ -65,7 +68,10 @@ export default function AdminPage() {
     { to: '/admin/inventory', label: 'Inventaire' },
     { to: '/admin/orders', label: 'Commandes' },
     { to: '/admin/purchases', label: 'Achats fournisseurs' },
+    { to: '/admin/partners', label: 'Partenaires' },
   ]
+
+  const pendingPartners = partners ? partners.supplier.pending + partners.transporter.pending : 0
 
   const lowStockCount = summary?.lowStock?.lowStockCount ?? 0
 
@@ -90,6 +96,14 @@ export default function AdminPage() {
 
       {!loading && !error && summary && (
         <>
+          {pendingPartners > 0 && (
+            <Link
+              to={`/admin/partners?type=${partners.supplier.pending ? 'supplier' : 'transporter'}`}
+              className="admin-page__alert admin-page__alert--link"
+            >
+              {pendingPartners} inscription{pendingPartners > 1 ? 's' : ''} de partenaire{pendingPartners > 1 ? 's' : ''} en attente de validation — voir les partenaires
+            </Link>
+          )}
           {lowStockCount > 0 && (
             <Link to="/admin/inventory" className="admin-page__alert admin-page__alert--link">
               ⚠ {lowStockCount} ligne{lowStockCount > 1 ? 's' : ''} de stock faible — voir l'inventaire

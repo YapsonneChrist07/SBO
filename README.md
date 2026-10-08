@@ -9,10 +9,11 @@ the three kinds of people SBO works with:
 | **Clients** | Browse the catalogue, deals and shops, keep a wishlist, order and pay, follow their delivery, review products. |
 | **Suppliers** | List the products they supply with their prices (optionally per shop), follow the purchase orders SBO sends them, read SBO's reviews of them. |
 | **Transporters** | Deliver customer orders (pick-up → delivered), pick up purchase orders from suppliers, publish their tariffs by destination and weight. |
-| **Admins** (SBO staff) | Dashboard, orders and delivery assignment, products, categories, promotions, inventory, customers, purchase orders to suppliers. |
+| **Admins** (SBO staff) | Dashboard, orders and delivery assignment, products, categories, promotions, inventory, customers, purchase orders to suppliers, and approving or disabling supplier and transporter accounts. |
 
 Everyone logs in on the same page and picks **Client**, **Fournisseur** or **Transporteur**.
-Supplier and transporter accounts are checked against the company they belong to.
+Supplier and transporter accounts are checked against the company they belong to, and a
+new partner sign-up waits for an admin's approval (Partenaires page) before its space opens.
 
 ## Stack
 
@@ -70,6 +71,7 @@ mysql -u root -p sbo < Backend/migrations/001_passwordreset.sql
 mysql -u root -p sbo < Backend/migrations/002_purchase_receiving.sql
 mysql -u root -p sbo < Backend/migrations/003_shipment_for_web_orders.sql
 mysql -u root -p sbo < Backend/migrations/004_tariff_per_transporter.sql
+mysql -u root -p sbo < Backend/migrations/005_partner_status.sql
 ```
 
 The dump always creates and uses a database named `sbo`, whatever `DB_NAME` says. To use
@@ -152,6 +154,5 @@ delivery flow, transporter tariffs, and rate limiting.
   and no payment provider is involved. Acceptable for a school demo, not for production.
 - **Currency:** the shop displays prices in euros, while transporter tariffs are in FCFA.
 - **Shipping cost** at checkout is always 0; transporter tariffs are not yet used to compute it.
-- **Partner sign-ups are not reviewed:** anyone can register as a supplier or transporter.
 - Some legacy catalogue entries have placeholder or duplicate names.
 - Rate-limit counters are kept in memory (one server instance).

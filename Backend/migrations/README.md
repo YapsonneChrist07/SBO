@@ -9,6 +9,7 @@ mysql -u <user> -p <database> < Backend/migrations/001_passwordreset.sql
 mysql -u <user> -p <database> < Backend/migrations/002_purchase_receiving.sql
 mysql -u <user> -p <database> < Backend/migrations/003_shipment_for_web_orders.sql
 mysql -u <user> -p <database> < Backend/migrations/004_tariff_per_transporter.sql
+mysql -u <user> -p <database> < Backend/migrations/005_partner_status.sql
 ```
 
 `sbo.sql` + these migrations gives exactly the schema in `../database/schema.sql`. A database

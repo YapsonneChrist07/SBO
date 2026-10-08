@@ -3,6 +3,9 @@
 const { api, createUser } = require('./helpers');
 
 const ADMIN_ONLY = [
+  ['get', '/api/partners?type=supplier'],
+  ['get', '/api/partners/summary'],
+  ['patch', '/api/partners/supplier/X/status'],
   ['get', '/api/suppliers'],
   ['put', '/api/suppliers/X'],
   ['delete', '/api/suppliers/X'],

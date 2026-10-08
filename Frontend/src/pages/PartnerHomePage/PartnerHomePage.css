@@ -33,6 +33,28 @@
   line-height: 1.6;
 }
 
+.partner-home__pending {
+  background: #fff6ef;
+  border: 1px solid #ffd2ad;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.75rem;
+}
+
+.partner-home__pending h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #b45300;
+  margin-bottom: 0.4rem;
+}
+
+.partner-home__pending p {
+  color: #6b4a2b;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  max-width: 720px;
+}
+
 .partner-home__grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));

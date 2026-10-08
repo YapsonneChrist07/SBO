@@ -24,24 +24,28 @@ const authorizeAdmin = (req, res, next) => {
 };
 
 const ORGANIZATION_LINKS = {
-  supplier: { link: 'suppliercontact', id: 'supplierID' },
-  transporter: { link: 'transportercontact', id: 'transporterID' },
+  supplier: { org: 'supplier', link: 'suppliercontact', id: 'supplierID' },
+  transporter: { org: 'transporter', link: 'transportercontact', id: 'transporterID' },
 };
 
-// Requires a token issued for `role` and re-checks the contact is still linked to the
-// organization in the token, so revoking a link takes effect without waiting for the
+// Requires a token issued for `role` and re-checks, on every request, that the contact is
+// still linked to the organization in the token and that SBO has approved it (status
+// 'active'). Revoking a link or disabling a company takes effect without waiting for the
 // JWT to expire. Sets req.organizationID for controllers to scope every query by.
 const authorizeOrganization = (role) => async (req, res, next) => {
-  const { link, id } = ORGANIZATION_LINKS[role];
+  const { org, link, id } = ORGANIZATION_LINKS[role];
   if (req.user?.role !== role || !req.user.organizationID) {
     return error(res, 'Accès réservé à cet espace partenaire', 403);
   }
   try {
-    const [rows] = await db.query(
-      `SELECT 1 FROM ${link} WHERE ${id} = ? AND contactID = ? AND (endedDate IS NULL OR endedDate > NOW())`,
+    const [[row]] = await db.query(
+      `SELECT o.status FROM ${link} l JOIN ${org} o ON o.${id} = l.${id}
+       WHERE l.${id} = ? AND l.contactID = ? AND (l.endedDate IS NULL OR l.endedDate > NOW())`,
       [req.user.organizationID, req.user.contactID]
     );
-    if (!rows.length) return error(res, 'Accès réservé à cet espace partenaire', 403);
+    if (!row) return error(res, 'Accès réservé à cet espace partenaire', 403);
+    if (row.status === 'pending') return error(res, 'Votre compte est en cours de validation par SBO.', 403);
+    if (row.status !== 'active') return error(res, 'Ce compte a été désactivé par SBO.', 403);
     req.organizationID = req.user.organizationID;
     next();
   } catch (err) {

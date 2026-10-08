@@ -8,7 +8,8 @@ let counter = 0;
 const uniqueName = (prefix) => `${prefix}${Date.now().toString(36)}${(counter++).toString(36)}`;
 
 // Register a user (optionally as a supplier/transporter company) and log in with that role.
-async function createUser({ role = 'client', admin = false, companyName } = {}) {
+// Partner sign-ups start 'pending'; they are approved here unless approved: false.
+async function createUser({ role = 'client', admin = false, companyName, approved = true } = {}) {
   const username = uniqueName(role.slice(0, 3));
   const password = 'secret123';
   const body = { firstName: 'Test', lastName: role, username, password, email: `${username}@example.com` };
@@ -18,6 +19,10 @@ async function createUser({ role = 'client', admin = false, companyName } = {}) 
   if (reg.status !== 201) throw new Error(`register failed: ${reg.status} ${reg.body.message}`);
   if (admin) {
     await db.query("INSERT INTO usercreator (userCreatorID, contactID, adminEntity) VALUES (?, ?, 'brokerAdmin')", [generateId(), reg.body.data.contactID]);
+  }
+  if (role !== 'client' && approved) {
+    const [link, id] = role === 'supplier' ? ['suppliercontact', 'supplierID'] : ['transportercontact', 'transporterID'];
+    await db.query(`UPDATE ${role} SET status = 'active' WHERE ${id} = (SELECT ${id} FROM ${link} WHERE contactID = ?)`, [reg.body.data.contactID]);
   }
   const res = await api.post('/api/auth/login').send({ username, password, role });
   if (res.status !== 200) throw new Error(`login failed: ${res.status} ${res.body.message}`);

@@ -14,7 +14,8 @@ const ROLE_LABELS = { supplier: 'fournisseur', transporter: 'transporteur' };
 
 // Suppliers and transporters are companies; a contact acts on behalf of one through
 // the suppliercontact / transportercontact link tables. Returns null when the contact
-// isn't (or is no longer) linked to an organization of that role.
+// isn't (or is no longer) linked to an organization of that role. organizationStatus is
+// the company's review state: 'pending' (awaiting SBO), 'active' or 'disabled'.
 const findOrganization = async (contactID, role) => {
   const tables = {
     supplier: { org: 'supplier', link: 'suppliercontact', id: 'supplierID' },
@@ -23,7 +24,7 @@ const findOrganization = async (contactID, role) => {
   if (!tables) return null;
 
   const [rows] = await db.query(
-    `SELECT o.${tables.id} AS organizationID, o.name AS organizationName
+    `SELECT o.${tables.id} AS organizationID, o.name AS organizationName, o.status AS organizationStatus
      FROM ${tables.link} l
      JOIN ${tables.org} o ON o.${tables.id} = l.${tables.id}
      WHERE l.contactID = ? AND (l.endedDate IS NULL OR l.endedDate > NOW())
@@ -79,7 +80,9 @@ const register = async (req, res) => {
         ? { table: 'supplier', link: 'suppliercontact', id: 'supplierID' }
         : { table: 'transporter', link: 'transportercontact', id: 'transporterID' };
       await conn.query(
-        `INSERT INTO ${org.table} (${org.id}, addressID, name, businessDescription) VALUES (?, ?, ?, ?)`,
+        // Website sign-ups wait for an admin to approve them (Partenaires page).
+        `INSERT INTO ${org.table} (${org.id}, addressID, name, businessDescription, status, statusChangedDate)
+         VALUES (?, ?, ?, ?, 'pending', NOW())`,
         [organizationID, orgAddressID, companyName.trim(), businessDescription || null]
       );
       await conn.query(
@@ -120,6 +123,10 @@ const login = async (req, res) => {
       organization = await findOrganization(contact.contactID, role);
       if (!organization) {
         return error(res, `Ce compte n'est pas enregistré comme ${ROLE_LABELS[role]}.`, 403);
+      }
+      // A pending company may log in (its space explains it awaits approval); a disabled one may not.
+      if (organization.organizationStatus === 'disabled') {
+        return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO. Contactez-nous pour plus d'informations.`, 403);
       }
     }
 
@@ -164,6 +171,9 @@ const getMe = async (req, res) => {
       organization = await findOrganization(req.user.contactID, role);
       // The contact was unlinked from the company since logging in: force a fresh login.
       if (!organization) return error(res, `Ce compte n'est plus enregistré comme ${ROLE_LABELS[role]}.`, 401);
+      if (organization.organizationStatus === 'disabled') {
+        return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO.`, 401);
+      }
     }
     return success(res, { ...rows[0], role, ...organization });
   } catch (err) {

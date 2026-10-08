@@ -2,19 +2,20 @@ import { useEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-// Redirects away from a partner page unless the user is logged in with `role`.
+// Redirects away from a partner page unless the user is logged in with `role` and SBO has
+// approved their company (a pending one is sent home, which explains the wait).
 // Returns true once the page is allowed to render.
 export default function useRequireRole(role) {
   const { user, loading } = useAuth()
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const allowed = !loading && user?.role === role
+  const allowed = !loading && user?.role === role && user.organizationStatus === 'active'
 
   useEffect(() => {
     if (loading) return
     if (!user) navigate('/login', { replace: true, state: { from: pathname } })
-    else if (user.role !== role) navigate('/', { replace: true })
-  }, [loading, user, role, navigate, pathname])
+    else if (!allowed) navigate('/', { replace: true })
+  }, [loading, user, allowed, navigate, pathname])
 
   return allowed
 }

@@ -13,7 +13,8 @@ const getAvailableTransporters = async (req, res) => {
       `SELECT t.transporterID, TRIM(t.name) AS name, tt.name AS typeName
        FROM transporter t
        LEFT JOIN transportertype tt ON tt.transporterTypeID = t.transporterTypeID
-       WHERE EXISTS (SELECT 1 FROM transportercontact tc
+       WHERE t.status = 'active'
+         AND EXISTS (SELECT 1 FROM transportercontact tc
                      WHERE tc.transporterID = t.transporterID AND (tc.endedDate IS NULL OR tc.endedDate > NOW()))
        ORDER BY t.name`
     );
@@ -45,6 +46,12 @@ const assign = async (req, res) => {
       return error(res, 'Le transporteur a déjà pris en charge cette commande', 409);
     }
 
+    const [[transporter]] = await conn.query('SELECT status FROM transporter WHERE transporterID = ?', [transporterID]);
+    if (!transporter) { await conn.rollback(); return error(res, 'Transporteur introuvable', 400); }
+    if (transporter.status !== 'active') {
+      await conn.rollback();
+      return error(res, 'Ce transporteur n’est pas validé ou a été désactivé', 400);
+    }
     const [[contact]] = await conn.query(
       `SELECT contactID FROM transportercontact
        WHERE transporterID = ? AND (endedDate IS NULL OR endedDate > NOW())

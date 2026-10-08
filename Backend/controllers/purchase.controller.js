@@ -81,18 +81,20 @@ const getById = async (req, res) => {
 // Choices for the "new purchase order" form.
 const getOptions = async (req, res) => {
   try {
-    // Only suppliers that can actually receive an order: an active contact and at least one product.
+    // Only suppliers that can actually receive an order: approved by SBO, an active contact
+    // and at least one product.
     const [suppliers] = await db.query(
       `SELECT s.supplierID, s.name, COUNT(ps.productID) AS productCount
        FROM supplier s
        JOIN productsupplier ps ON ps.supplierID = s.supplierID
-       WHERE EXISTS (SELECT 1 FROM suppliercontact sc
+       WHERE s.status = 'active'
+         AND EXISTS (SELECT 1 FROM suppliercontact sc
                      WHERE sc.supplierID = s.supplierID AND (sc.endedDate IS NULL OR sc.endedDate > NOW()))
        GROUP BY s.supplierID, s.name
        ORDER BY s.name`
     );
     const [stores] = await db.query('SELECT storeID, storeName FROM store ORDER BY storeName');
-    const [transporters] = await db.query('SELECT transporterID, name FROM transporter ORDER BY name');
+    const [transporters] = await db.query("SELECT transporterID, name FROM transporter WHERE status = 'active' ORDER BY name");
     return success(res, { suppliers, stores, transporters });
   } catch (err) {
     return error(res, err.message);
@@ -135,13 +137,17 @@ const create = async (req, res) => {
     const [[store]] = await conn.query('SELECT storeID, locationID FROM store WHERE storeID = ?', [storeID]);
     if (!store) return error(res, 'Boutique introuvable', 400);
 
+    const [[supplier]] = await conn.query('SELECT status FROM supplier WHERE supplierID = ?', [supplierID]);
+    if (!supplier) return error(res, 'Fournisseur introuvable', 400);
+    if (supplier.status !== 'active') return error(res, 'Ce fournisseur n’est pas validé ou a été désactivé', 400);
     const supplierContactID = await activeContact(conn, 'suppliercontact', 'supplierID', supplierID);
     if (!supplierContactID) return error(res, 'Ce fournisseur n’a aucun contact actif', 400);
 
     let transporterContactID = null;
     if (transporterID) {
-      const [[transporter]] = await conn.query('SELECT transporterID FROM transporter WHERE transporterID = ?', [transporterID]);
+      const [[transporter]] = await conn.query('SELECT status FROM transporter WHERE transporterID = ?', [transporterID]);
       if (!transporter) return error(res, 'Transporteur introuvable', 400);
+      if (transporter.status !== 'active') return error(res, 'Ce transporteur n’est pas validé ou a été désactivé', 400);
       transporterContactID = await activeContact(conn, 'transportercontact', 'transporterID', transporterID);
     }
 

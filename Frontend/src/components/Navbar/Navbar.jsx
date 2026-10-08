@@ -72,6 +72,13 @@ export default function Navbar() {
       <li><Link to="/supplier/reviews" className={linkClass('/supplier/reviews')}>Avis</Link></li>
       <li><Link to="/products" className={linkClass('/products')}>Catalogue SBO</Link></li>
     </>
+  ) : user?.role === 'transporter' ? (
+    <>
+      <li><Link to="/" className={linkClass('/')}>Mon espace</Link></li>
+      <li><Link to="/transporter/deliveries" className={linkClass('/transporter/deliveries')}>Livraisons</Link></li>
+      <li><Link to="/transporter/pickups" className={linkClass('/transporter/pickups')}>Enlèvements</Link></li>
+      <li><Link to="/transporter/tariffs" className={linkClass('/transporter/tariffs')}>Tarifs</Link></li>
+    </>
   ) : (
     <>
       <li><Link to="/" className={linkClass('/')}>Home</Link></li>

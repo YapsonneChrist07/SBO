@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "demo:suppliers": "node scripts/demoSuppliers.js"
+    "demo:suppliers": "node scripts/demoSuppliers.js",
+    "demo:transporters": "node scripts/demoTransporters.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

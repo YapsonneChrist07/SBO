@@ -20,3 +20,11 @@ export const getAllOrders = ({ search, completed, page = 1, limit = 20 } = {}, t
 
 export const setOrderStatus = (id, completed, token) =>
   request(`/sells/${id}/status`, { method: 'PATCH', body: { completed }, token })
+
+export const getShipmentTransporters = (token) => request('/sells/shipment-transporters', { token })
+
+export const assignTransporter = (id, { transporterID, expectedDaysDuration }, token) =>
+  request(`/sells/${id}/shipment`, { method: 'PUT', body: { transporterID, expectedDaysDuration }, token })
+
+export const unassignTransporter = (id, token) =>
+  request(`/sells/${id}/shipment`, { method: 'DELETE', token })

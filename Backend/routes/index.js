@@ -9,6 +9,7 @@ router.use('/suppliers',         require('./supplier.routes'));
 router.use('/supplier-portal',   require('./supplierportal.routes'));
 router.use('/brokers',           require('./broker.routes'));
 router.use('/transporters',      require('./transporter.routes'));
+router.use('/transporter-portal', require('./transporterportal.routes'));
 router.use('/inventory',         require('./inventory.routes'));
 router.use('/sells',             require('./sell.routes'));
 router.use('/purchases',         require('./purchase.routes'));

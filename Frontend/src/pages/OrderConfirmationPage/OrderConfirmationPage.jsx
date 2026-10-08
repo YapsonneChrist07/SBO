@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getOrder } from '../../api/orders'
 import { formatPriceOrTBD } from '../../utils/format'
+import ShipmentBadge from '../../components/ShipmentBadge/ShipmentBadge'
 import './OrderConfirmationPage.css'
 
 export default function OrderConfirmationPage() {
@@ -87,6 +88,18 @@ export default function OrderConfirmationPage() {
             <div>
               <span>Livraison</span>
               <strong>{[order.lineOfAddress, order.cityName, order.postalCode].filter(Boolean).join(', ')}</strong>
+            </div>
+            <div>
+              <span>Suivi</span>
+              <strong>
+                {order.shipment ? (
+                  <>
+                    <ShipmentBadge status={order.shipment.status} /> {order.shipment.transporterName}
+                    {order.shipment.status !== 'delivered' && order.shipment.expectedDaysDuration != null &&
+                      ` · environ ${order.shipment.expectedDaysDuration} j`}
+                  </>
+                ) : 'En préparation'}
+              </strong>
             </div>
           </div>
         )}

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getOrder, setOrderStatus } from '../../api/orders'
+import DeliveryPanel from './DeliveryPanel'
 import { formatPriceOrTBD } from '../../utils/format'
 import '../AdminPage/AdminPage.css'
 import '../AdminOrdersPage/AdminOrdersPage.css'
@@ -33,14 +34,16 @@ export default function AdminOrderDetailPage() {
     }
   }, [authLoading, user, navigate, id])
 
+  const loadOrder = useCallback(() => getOrder(id, token)
+    .then(setOrder)
+    .catch((err) => setError(err.message || 'Commande introuvable'))
+    .finally(() => setLoading(false)), [id, token])
+
   useEffect(() => {
     if (!token || !user?.adminEntity) return
     setLoading(true)
-    getOrder(id, token)
-      .then(setOrder)
-      .catch((err) => setError(err.message || 'Commande introuvable'))
-      .finally(() => setLoading(false))
-  }, [id, token, user])
+    loadOrder()
+  }, [token, user, loadOrder])
 
   const toggleStatus = async () => {
     if (!order) return
@@ -124,9 +127,6 @@ export default function AdminOrderDetailPage() {
                 {order.brokerName && (
                   <p className="admin-order-detail__field admin-page__muted">Courtier : {order.brokerName}</p>
                 )}
-                {order.transporterName && (
-                  <p className="admin-order-detail__field admin-page__muted">Transporteur : {order.transporterName}</p>
-                )}
                 {(order.lineOfAddress || order.cityName) && (
                   <p className="admin-order-detail__field admin-page__muted">
                     {[order.lineOfAddress, order.cityName, order.postalCode].filter(Boolean).join(', ')}
@@ -136,6 +136,8 @@ export default function AdminOrderDetailPage() {
                   <p className="admin-order-detail__field admin-page__muted">Tél : {order.addressPhone}</p>
                 )}
               </section>
+
+              <DeliveryPanel order={order} token={token} onChanged={loadOrder} />
 
               <section className="admin-panel">
                 <h2>Paiements</h2>

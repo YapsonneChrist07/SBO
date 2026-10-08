@@ -1,4 +1,4 @@
-﻿/* Shared by the supplier space pages, on top of the admin page/table styles. */
+/* Shared by the supplier space pages, on top of the admin page/table styles. */
 
 /* .app is a flex column, where `margin: 0 auto` alone shrinks the page to its
    content — pages without a wide table (e.g. reviews) would collapse. */
@@ -103,7 +103,8 @@
   color: #444;
 }
 
-.supplier-form input {
+.supplier-form input,
+.supplier-form select {
   padding: 0.6rem 0.8rem;
   border: 1.5px solid #e4e2df;
   border-radius: 8px;
@@ -112,6 +113,7 @@
 }
 
 .supplier-form input:focus,
+.supplier-form select:focus,
 .supplier-shop-price input:focus {
   outline: none;
   border-color: #FF6B00;

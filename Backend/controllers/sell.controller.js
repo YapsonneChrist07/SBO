@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const generateId = require('../utils/generateId');
 const { success, error } = require('../utils/response');
+const { currentUnitPrices } = require('../utils/pricing');
 
 const getAll = async (req, res) => {
   try {
@@ -89,15 +90,24 @@ const getById = async (req, res) => {
        WHERE pay.sellID = ?`,
       [req.params.id]
     );
-    return success(res, { ...rows[0], details, payments });
+    const [[shipment]] = await db.query(
+      `SELECT sh.status, sh.shipmentDate, sh.receivedDate, sh.expectedDaysDuration,
+              sh.transporterID, TRIM(t.name) AS transporterName
+       FROM shipment sh LEFT JOIN transporter t ON t.transporterID = sh.transporterID
+       WHERE sh.sellID = ?`,
+      [req.params.id]
+    );
+    return success(res, { ...rows[0], details, payments, shipment: shipment || null });
   } catch (err) {
     return error(res, err.message);
   }
 };
 
 const create = async (req, res) => {
-  const { clientID, brokerID, brokerContactID, transporterID,
-          transporterContactID, items, transportCost, tax, address, payment } = req.body;
+  // Only the items (product + quantity), address and payment come from the shopper.
+  // Prices are looked up here, and client/broker/transporter/fees are SBO's to set —
+  // trusting them from the request let anyone pick their own price or transporter.
+  const { items, address, payment } = req.body;
   const clientContactID = req.user.contactID;
   const conn = await db.getConnection();
   try {
@@ -108,6 +118,24 @@ const create = async (req, res) => {
     if (!payment?.paymentMethodID) {
       conn.release();
       return error(res, 'A payment method is required', 400);
+    }
+    if (items.some((i) => !Number.isInteger(Number(i.quantity)) || Number(i.quantity) < 1)) {
+      conn.release();
+      return error(res, 'Invalid quantity', 400);
+    }
+    const prices = await currentUnitPrices(conn, [...new Set(items.map((i) => i.productID))]);
+    if (items.some((i) => !prices.has(i.productID))) {
+      conn.release();
+      return error(res, 'Product not found', 400);
+    }
+    // A saved card / mobile money account can only be used by its owner.
+    for (const [table, id] of [['creditcard', 'creditCardID'], ['mobilemoney', 'mobileMoneyID']]) {
+      if (!payment[id]) continue;
+      const [[owned]] = await conn.query(`SELECT 1 AS ok FROM ${table} WHERE ${id} = ? AND contactID = ?`, [payment[id], clientContactID]);
+      if (!owned) {
+        conn.release();
+        return error(res, 'Payment method not found', 400);
+      }
     }
     await conn.beginTransaction();
 
@@ -124,24 +152,27 @@ const create = async (req, res) => {
     }
 
     const sellID = generateId();
-    let subTotal = 0;
-    for (const item of items) {
-      subTotal += item.quantity * item.unitPrice;
-    }
-    const total = subTotal + (transportCost || 0) + (tax || 0);
+    const lines = items.map((item) => {
+      const quantity = Number(item.quantity);
+      const unitPrice = prices.get(item.productID);
+      return { productID: item.productID, lenghtID: item.lenghtID || null, quantity, unitPrice, total: quantity * unitPrice };
+    });
+    const subTotal = lines.reduce((sum, l) => sum + l.total, 0);
+    const total = subTotal;
 
+    // Explicit NULLs: sell.brokerID defaults to 'BRK_0000000001', which is not a broker
+    // and fails its foreign key if the column is simply left out.
     await conn.query(
       `INSERT INTO sell (sellID, clientID, clientContactID, brokerID, brokerContactID,
        transporterID, transporterContactID, sellDate, subTotal, transportCost, tax, total, completed)
-       VALUES (?,?,?,?,?,?,?,NOW(),?,?,?,?,0)`,
-      [sellID, clientID || null, clientContactID || null, brokerID || null, brokerContactID || null,
-       transporterID || null, transporterContactID || null, subTotal, transportCost || 0, tax || 0, total]
+       VALUES (?,NULL,?,NULL,NULL,NULL,NULL,NOW(),?,0,0,?,0)`,
+      [sellID, clientContactID, subTotal, total]
     );
 
-    for (const item of items) {
+    for (const l of lines) {
       await conn.query(
         'INSERT INTO selldetails (sellID, productID, lenghtID, quantity, unitPrice, total) VALUES (?,?,?,?,?,?)',
-        [sellID, item.productID, item.lenghtID || null, item.quantity, item.unitPrice, item.quantity * item.unitPrice]
+        [sellID, l.productID, l.lenghtID, l.quantity, l.unitPrice, l.total]
       );
     }
 
@@ -174,13 +205,29 @@ const setStatus = async (req, res) => {
 };
 
 const remove = async (req, res) => {
+  const conn = await db.getConnection();
   try {
-    await db.query('DELETE FROM selldetails WHERE sellID=?', [req.params.id]);
-    const [result] = await db.query('DELETE FROM sell WHERE sellID=?', [req.params.id]);
-    if (!result.affectedRows) return error(res, 'Sale not found', 404);
+    // Paid or shipped orders are records to keep; deleting the details first and then
+    // failing on those foreign keys used to leave an order with no items.
+    const [[refs]] = await conn.query(
+      `SELECT (SELECT COUNT(*) FROM payment WHERE sellID = ?) AS payments,
+              (SELECT COUNT(*) FROM shipment WHERE sellID = ?) AS shipments`,
+      [req.params.id, req.params.id]
+    );
+    if (refs.payments || refs.shipments) {
+      return error(res, 'Une commande payée ou expédiée ne peut pas être supprimée', 409);
+    }
+    await conn.beginTransaction();
+    await conn.query('DELETE FROM selldetails WHERE sellID=?', [req.params.id]);
+    const [result] = await conn.query('DELETE FROM sell WHERE sellID=?', [req.params.id]);
+    if (!result.affectedRows) { await conn.rollback(); return error(res, 'Sale not found', 404); }
+    await conn.commit();
     return success(res, null, 'Sale deleted');
   } catch (err) {
+    await conn.rollback();
     return error(res, err.message);
+  } finally {
+    conn.release();
   }
 };
 

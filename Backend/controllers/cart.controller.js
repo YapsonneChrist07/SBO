@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const generateId = require('../utils/generateId');
 const { success, error } = require('../utils/response');
+const { currentUnitPrices } = require('../utils/pricing');
 
 const getCart = async (req, res) => {
   try {
@@ -34,17 +35,11 @@ const addItem = async (req, res) => {
   const { productID, quantity, lenghtID } = req.body;
   const { cartID } = req.params;
   try {
-    const [product] = await db.query('SELECT sellUnitPrice FROM product WHERE productID = ?', [productID]);
-    if (!product.length) return error(res, 'Product not found', 404);
     // Charge the active-deal price if this product currently has one, so checkout matches
-    // whatever discounted price the storefront displayed (see product.controller.js getAll/getById).
-    const [deal] = await db.query(
-      `SELECT pd.currentPrice FROM promotiondetails pd
-       JOIN promotion promo ON promo.promotionID = pd.promotionID AND NOW() BETWEEN promo.startDate AND promo.endDate
-       WHERE pd.productID = ? AND pd.currentPrice > 0`,
-      [productID]
-    );
-    const unitPrice = deal.length ? deal[0].currentPrice : product[0].sellUnitPrice;
+    // whatever discounted price the storefront displayed.
+    const prices = await currentUnitPrices(db, [productID]);
+    if (!prices.has(productID)) return error(res, 'Product not found', 404);
+    const unitPrice = prices.get(productID);
     const total = unitPrice * quantity;
 
     await db.query(

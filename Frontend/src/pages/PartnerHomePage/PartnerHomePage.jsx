@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { getSupplierSummary } from '../../api/supplierPortal'
+import { getTransporterSummary } from '../../api/transporterPortal'
 import { formatPriceOrTBD } from '../../utils/format'
 import './PartnerHomePage.css'
 
@@ -47,12 +48,30 @@ const ROLE_CONTENT = {
   },
   transporter: {
     eyebrow: 'Espace transporteur',
-    intro: 'Suivez les expéditions et livraisons qui vous sont confiées et publiez vos tarifs par trajet.',
+    intro: 'Suivez les livraisons et enlèvements qui vous sont confiés et publiez vos tarifs par destination.',
+    loadSummary: getTransporterSummary,
     sections: [
-      { title: 'Expéditions clients', text: 'Les commandes SBO à livrer aux clients : statut, délai prévu et confirmation de réception.' },
-      { title: 'Livraisons fournisseurs', text: 'Les marchandises à récupérer chez les fournisseurs et à acheminer vers SBO.' },
-      { title: 'Trajets & tarifs', text: 'Définissez les trajets que vous desservez et votre coût par tranche de poids.' },
-      { title: 'Historique', text: 'Retrouvez vos transports passés et les montants facturés.' },
+      {
+        title: 'Livraisons clients',
+        text: 'Les commandes SBO à livrer aux clients : adresse, contenu du colis, prise en charge et confirmation de livraison.',
+        to: '/transporter/deliveries',
+        stat: (s) => {
+          const open = s.shipments.assigned + s.shipments.in_transit
+          return open ? `${plural(open, 'livraison')} en cours` : `${plural(s.shipments.delivered, 'livraison')} effectuée${s.shipments.delivered > 1 ? 's' : ''}`
+        },
+      },
+      {
+        title: 'Enlèvements fournisseurs',
+        text: 'Les marchandises à récupérer chez les fournisseurs et à acheminer vers les boutiques SBO.',
+        to: '/transporter/pickups',
+        stat: (s) => s.pickupsPending ? `${plural(s.pickupsPending, 'enlèvement')} à faire` : 'Aucun enlèvement en attente',
+      },
+      {
+        title: 'Mes tarifs',
+        text: 'Votre coût de transport par destination et par tranche de poids, pour une zone entière ou un pays précis.',
+        to: '/transporter/tariffs',
+        stat: (s) => s.rateCount ? `${s.rateCount} tarifs · ${plural(s.zoneCount, 'zone')}` : 'Aucun tarif publié',
+      },
     ],
   },
 }

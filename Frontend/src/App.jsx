@@ -31,6 +31,11 @@ import SupplierProductDetailPage from './pages/SupplierProductDetailPage/Supplie
 import SupplierOrdersPage from './pages/SupplierOrdersPage/SupplierOrdersPage'
 import SupplierOrderDetailPage from './pages/SupplierOrderDetailPage/SupplierOrderDetailPage'
 import SupplierReviewsPage from './pages/SupplierReviewsPage/SupplierReviewsPage'
+import TransporterDeliveriesPage from './pages/TransporterDeliveriesPage/TransporterDeliveriesPage'
+import TransporterDeliveryDetailPage from './pages/TransporterDeliveryDetailPage/TransporterDeliveryDetailPage'
+import TransporterPickupsPage from './pages/TransporterPickupsPage/TransporterPickupsPage'
+import TransporterPickupDetailPage from './pages/TransporterPickupDetailPage/TransporterPickupDetailPage'
+import TransporterTariffsPage from './pages/TransporterTariffsPage/TransporterTariffsPage'
 import WishlistPage from './pages/WishlistPage/WishlistPage'
 import LoginPage from './pages/LoginPage/LoginPage'
 import RegisterPage from './pages/RegisterPage/RegisterPage'
@@ -85,6 +90,11 @@ export default function App() {
               <Route path="/supplier/orders" element={<SupplierOrdersPage />} />
               <Route path="/supplier/orders/:id" element={<SupplierOrderDetailPage />} />
               <Route path="/supplier/reviews" element={<SupplierReviewsPage />} />
+              <Route path="/transporter/deliveries" element={<TransporterDeliveriesPage />} />
+              <Route path="/transporter/deliveries/:sellID" element={<TransporterDeliveryDetailPage />} />
+              <Route path="/transporter/pickups" element={<TransporterPickupsPage />} />
+              <Route path="/transporter/pickups/:id" element={<TransporterPickupDetailPage />} />
+              <Route path="/transporter/tariffs" element={<TransporterTariffsPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />

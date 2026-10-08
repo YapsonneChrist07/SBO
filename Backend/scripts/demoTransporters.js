@@ -95,6 +95,20 @@ async function seed(conn) {
         [id.transporter, t.tariff.factor, REFERENCE_TRANSPORTER]
       );
       rateCount = result.affectedRows;
+      // Databases built from schema.sql don't have the legacy carrier: generate a tariff per
+      // zone instead (base fee + price per kg, same order of magnitude as the legacy rates).
+      if (!rateCount) {
+        const [generated] = await conn.query(
+          `INSERT INTO transportercostpertraject (trajectID, weightLimitID, transporterID, transportCost)
+           SELECT t.trajectID, w.weightLimitID, ?,
+                  ROUND((ELT(t.zoneID, 1000, 1400, 1500, 2000, 2800, 5000)
+                       + ELT(t.zoneID, 2500, 3500, 4000, 5000, 5500, 10000) * w.weightMax) * ? / 50) * 50
+           FROM traject t CROSS JOIN weightlimit w
+           WHERE t.zoneID BETWEEN 1 AND 6`,
+          [id.transporter, t.tariff.factor]
+        );
+        rateCount = generated.affectedRows;
+      }
     }
 
     // Only demo purchase orders (from demoSuppliers.js), if they exist.

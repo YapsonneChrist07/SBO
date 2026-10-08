@@ -17,8 +17,9 @@ vite.err.log
 dist/
 dist-ssr/
 
-# Large DB dump - too large for git, not source
+# Large DB dumps - too large for git, not source
 sbo.sql
+sbo_demo.sql
 
 # Editor
 .vscode/*

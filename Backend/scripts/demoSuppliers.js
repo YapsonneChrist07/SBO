@@ -15,7 +15,6 @@ const db = require('../config/db');
 
 const DEMO_PASSWORD = 'DemoSBO2026';
 const DEMO_CITY = 'CITY_1'; // Grand-Bassam
-const TRANSPORTER = 'TPR_1';
 
 // Each supplier offers the first products (by ID) of the listed product lines, at a
 // wholesale price of `ratio` × SBO's selling price.
@@ -185,8 +184,9 @@ async function seed(conn) {
         `INSERT INTO purchase (purchaseID, brokerID, brokerContactID, transporterID, transporterContactID,
                                supplierID, supplierContactID, storeID, purchaseDate, receivedDate,
                                subTotal, transportCost, tax, total)
-         VALUES (?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
-        [purchaseID, house.brokerID, house.contactID, order.transportCost ? TRANSPORTER : null,
+         VALUES (?, ?, ?, NULL, NULL, ?, ?, ?, ?, ?, ?, ?, 0, ?)`,
+        // No transporter here: demoTransporters.js assigns the demo transporters to these orders.
+        [purchaseID, house.brokerID, house.contactID,
          id.supplier, id.contact, store.storeID, date, order.received ? daysAgo(Math.max(order.daysAgo - 3, 0)) : null,
          subTotal, order.transportCost, round2(subTotal + order.transportCost)]
       );

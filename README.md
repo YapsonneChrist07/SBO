@@ -116,6 +116,11 @@ cd Backend && npm run dev     # API on http://localhost:5000
 cd Frontend && npm run dev    # site on http://localhost:5173
 ```
 
+## Deployment
+
+The online version runs on Railway (API + MySQL) and Vercel (website) with a trimmed demo
+catalogue built by `npm run db:build-demo`. Step-by-step guide: [DEPLOYMENT.md](DEPLOYMENT.md).
+
 ## Tests
 
 ```sh

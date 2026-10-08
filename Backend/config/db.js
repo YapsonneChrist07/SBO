@@ -15,7 +15,7 @@ const pool = mysql.createPool({
 
 pool.getConnection()
   .then(conn => {
-    console.log('MySQL connected successfully');
+    if (process.env.NODE_ENV !== 'test') console.log('MySQL connected successfully');
     conn.release();
   })
   .catch(err => {

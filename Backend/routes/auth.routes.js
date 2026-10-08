@@ -3,8 +3,9 @@ const { body } = require('express-validator');
 const ctrl = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth');
 const validate = require('../middleware/validate');
+const limit = require('../middleware/rateLimit');
 
-router.post('/register', [
+router.post('/register', limit.register, [
   body('firstName').notEmpty(),
   body('lastName').notEmpty(),
   body('username').notEmpty().isLength({ min: 3 }),
@@ -15,7 +16,7 @@ router.post('/register', [
   body('businessDescription').optional({ checkFalsy: true }).isLength({ max: 250 }),
 ], validate, ctrl.register);
 
-router.post('/login', [
+router.post('/login', limit.login, [
   body('username').notEmpty(),
   body('password').notEmpty(),
   body('role').optional().isIn(ctrl.ROLES),
@@ -34,11 +35,11 @@ router.put('/me/password', authenticate, [
   body('newPassword').isLength({ min: 6 }),
 ], validate, ctrl.changePassword);
 
-router.post('/forgot-password', [
+router.post('/forgot-password', limit.forgotPassword, [
   body('email').isEmail(),
 ], validate, ctrl.forgotPassword);
 
-router.post('/reset-password', [
+router.post('/reset-password', limit.resetPassword, [
   body('token').notEmpty(),
   body('newPassword').isLength({ min: 6 }),
 ], validate, ctrl.resetPassword);

@@ -59,7 +59,7 @@ export default function RegisterPage() {
     try {
       const { confirmPassword, companyName, businessDescription, ...payload } = form
       await register(isCompany ? { ...payload, companyName, businessDescription } : payload)
-      await login(form.username, form.password, form.role)
+      await login(form.username, form.password)
       navigate('/')
     } catch (err) {
       setError(err.message)

@@ -103,7 +103,6 @@ export default function PartnerHomePage() {
           <p>
             Merci pour votre inscription&nbsp;! L’équipe SBO vérifie les informations de votre entreprise.
             Votre espace s’ouvrira dès que votre compte sera validé — reconnectez-vous à ce moment-là.
-            En attendant, vous pouvez parcourir la boutique en vous connectant en tant que client.
           </p>
         </div>
       )}

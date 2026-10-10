@@ -41,14 +41,12 @@ describe.each(['supplier', 'transporter'])('%s sign-up review', (type) => {
     expect((await setStatus(type, id, 'disabled')).status).toBe(200);
     expect((await api.get(portal).set(partner.auth)).status).toBe(403); // existing session cut off
     expect((await api.get('/api/auth/me').set(partner.auth)).status).toBe(401);
-    const login = await api.post('/api/auth/login').send({ username: partner.username, password: partner.password, role: type });
+    const login = await api.post('/api/auth/login').send({ username: partner.username, password: partner.password });
     expect(login.status).toBe(403);
     expect(login.body.message).toMatch(/désactivé/);
-    // Still free to shop as a client.
-    expect((await api.post('/api/auth/login').send({ username: partner.username, password: partner.password, role: 'client' })).status).toBe(200);
 
     expect((await setStatus(type, id, 'active')).body.message).toBe('Partenaire réactivé');
-    expect((await api.post('/api/auth/login').send({ username: partner.username, password: partner.password, role: type })).status).toBe(200);
+    expect((await api.post('/api/auth/login').send({ username: partner.username, password: partner.password })).status).toBe(200);
   });
 
   test('a company cannot be put back to pending, and unknown ids are rejected', async () => {

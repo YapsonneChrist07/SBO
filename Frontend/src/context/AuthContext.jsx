@@ -31,8 +31,9 @@ export function AuthProvider({ children }) {
       .finally(() => setLoading(false))
   }, [token])
 
-  const login = async (username, password, role = 'client') => {
-    const { token: newToken, user: loggedInUser } = await loginUser({ username, password, role })
+  // The server decides the role (client, supplier or transporter) from the account itself.
+  const login = async (username, password) => {
+    const { token: newToken, user: loggedInUser } = await loginUser({ username, password })
     localStorage.setItem(STORAGE_KEY, newToken)
     setToken(newToken)
     setUser(loggedInUser)

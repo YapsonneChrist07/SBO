@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import RoleSelector from '../../components/RoleSelector/RoleSelector'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -9,7 +8,6 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const redirectTo = location.state?.from || '/'
-  const [role, setRole] = useState('client')
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
@@ -23,8 +21,8 @@ export default function LoginPage() {
     setError('')
     setSubmitting(true)
     try {
-      await login(form.username, form.password, role)
-      // Only follow the "from" redirect if it belongs to the space being logged into
+      const { role } = await login(form.username, form.password)
+      // Only follow the "from" redirect if it belongs to the account's space
       // (e.g. checkout for clients, /supplier/… for suppliers); otherwise go home.
       const partnerPrefix = `/${role}/`
       const followRedirect = role === 'client'
@@ -47,8 +45,6 @@ export default function LoginPage() {
         {error && <div className="auth-card__error">{error}</div>}
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <RoleSelector value={role} onChange={setRole} legend="Se connecter en tant que" />
-
           <label className="auth-form__field">
             <span>Nom d'utilisateur</span>
             <input name="username" value={form.username} onChange={handleChange} required autoFocus />

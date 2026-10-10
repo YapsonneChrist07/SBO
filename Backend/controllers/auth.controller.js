@@ -35,6 +35,17 @@ const findOrganization = async (contactID, role) => {
   return rows[0] || null;
 };
 
+// An account's role follows from its company link: a contact linked to a supplier is a
+// supplier, one linked to a transporter is a transporter, anyone else is a client.
+// Partner accounts therefore always land in their own space, never in the shop.
+const detectRole = async (contactID) => {
+  for (const role of ['supplier', 'transporter']) {
+    const organization = await findOrganization(contactID, role);
+    if (organization) return { role, organization };
+  }
+  return { role: 'client', organization: null };
+};
+
 const register = async (req, res) => {
   const { firstName, lastName, username, password, email, phone, nickName, companyName, businessDescription } = req.body;
   const role = req.body.role || 'client';
@@ -104,7 +115,6 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   const { username, password } = req.body;
-  const role = req.body.role || 'client';
   try {
     const [rows] = await db.query(
       'SELECT c.*, u.adminEntity FROM contact c LEFT JOIN usercreator u ON u.contactID = c.contactID WHERE c.username = ?',
@@ -116,18 +126,10 @@ const login = async (req, res) => {
     const valid = await bcrypt.compare(password, contact.password);
     if (!valid) return error(res, 'Invalid credentials', 401);
 
-    // Anyone can shop as a client; the supplier/transporter spaces require the
-    // account to actually be linked to such a company.
-    let organization = null;
-    if (role !== 'client') {
-      organization = await findOrganization(contact.contactID, role);
-      if (!organization) {
-        return error(res, `Ce compte n'est pas enregistré comme ${ROLE_LABELS[role]}.`, 403);
-      }
-      // A pending company may log in (its space explains it awaits approval); a disabled one may not.
-      if (organization.organizationStatus === 'disabled') {
-        return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO. Contactez-nous pour plus d'informations.`, 403);
-      }
+    const { role, organization } = await detectRole(contact.contactID);
+    // A pending company may log in (its space explains it awaits approval); a disabled one may not.
+    if (organization?.organizationStatus === 'disabled') {
+      return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO. Contactez-nous pour plus d'informations.`, 403);
     }
 
     const token = jwt.sign(
@@ -164,16 +166,15 @@ const getMe = async (req, res) => {
     );
     if (!rows.length) return error(res, 'User not found', 404);
 
-    // Tokens issued before roles existed carry no role — treat them as clients.
-    const role = req.user.role || 'client';
-    let organization = null;
-    if (role !== 'client') {
-      organization = await findOrganization(req.user.contactID, role);
-      // The contact was unlinked from the company since logging in: force a fresh login.
-      if (!organization) return error(res, `Ce compte n'est plus enregistré comme ${ROLE_LABELS[role]}.`, 401);
-      if (organization.organizationStatus === 'disabled') {
-        return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO.`, 401);
-      }
+    // The account's role changed since this token was issued (linked to or unlinked from a
+    // company, or an old "client" session of a partner account): force a fresh login.
+    // Tokens issued before roles existed carry no role and count as clients.
+    const { role, organization } = await detectRole(req.user.contactID);
+    if (role !== (req.user.role || 'client') || (organization && organization.organizationID !== req.user.organizationID)) {
+      return error(res, 'Votre session a expiré, veuillez vous reconnecter.', 401);
+    }
+    if (organization?.organizationStatus === 'disabled') {
+      return error(res, `Ce compte ${ROLE_LABELS[role]} a été désactivé par SBO.`, 401);
     }
     return success(res, { ...rows[0], role, ...organization });
   } catch (err) {

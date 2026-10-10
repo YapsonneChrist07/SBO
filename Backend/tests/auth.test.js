@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const { api, db, createUser, uniqueName } = require('./helpers');
 
 describe('registration', () => {
@@ -49,20 +50,33 @@ describe('login with a role', () => {
     expect(res.body.message).toBe('Invalid credentials');
   });
 
-  test('a client account cannot log in as a supplier or transporter', async () => {
-    const { username, password } = await createUser();
+  test('the role comes from the account: a role sent by the client is ignored', async () => {
+    const client = await createUser();
     for (const role of ['supplier', 'transporter']) {
-      const res = await api.post('/api/auth/login').send({ username, password, role });
-      expect(res.status).toBe(403);
+      const res = await api.post('/api/auth/login').send({ username: client.username, password: client.password, role });
+      expect(res.status).toBe(200);
+      expect(res.body.data.user.role).toBe('client');
+    }
+    for (const type of ['supplier', 'transporter']) {
+      const partner = await createUser({ role: type });
+      for (const role of ['client', 'supplier', 'transporter']) {
+        const res = await api.post('/api/auth/login').send({ username: partner.username, password: partner.password, role });
+        expect(res.status).toBe(200);
+        expect(res.body.data.user).toMatchObject({ role: type, organizationID: partner.user.organizationID });
+      }
     }
   });
 
-  test('a supplier cannot log in as a transporter, but can shop as a client', async () => {
-    const { username, password } = await createUser({ role: 'supplier' });
-    expect((await api.post('/api/auth/login').send({ username, password, role: 'transporter' })).status).toBe(403);
-    const asClient = await api.post('/api/auth/login').send({ username, password, role: 'client' });
-    expect(asClient.status).toBe(200);
-    expect(asClient.body.data.user.role).toBe('client');
+  test('a pending partner logs straight into its own space', async () => {
+    const { user } = await createUser({ role: 'supplier', approved: false });
+    expect(user).toMatchObject({ role: 'supplier', organizationStatus: 'pending' });
+  });
+
+  test('a session whose role no longer matches the account is ended', async () => {
+    const { user } = await createUser({ role: 'supplier' });
+    // e.g. a "client" session a partner account opened before roles were detected
+    const stale = jwt.sign({ contactID: user.contactID, username: user.username, role: 'client', organizationID: null }, process.env.JWT_SECRET);
+    expect((await api.get('/api/auth/me').set({ Authorization: `Bearer ${stale}` })).status).toBe(401);
   });
 
   test('/auth/me reports the role and company of the session', async () => {

@@ -15,7 +15,7 @@ reach a real person.
 | Coopérative Karité (démo) | Cosmetics, body care | `demo_karite` |
 | Artisans d’Art (démo) | Artworks, decoration (no orders or reviews yet) | `demo_art` |
 
-All four use the password `DemoSBO2026` locally. Log in with the **Fournisseur** role.
+All four use the password `DemoSBO2026` locally. Logging in opens their supplier space.
 The scripts use `DEMO_PASSWORD` instead when it is set; the online demo is always built
 with its own private password (see [DEPLOYMENT.md](../../DEPLOYMENT.md)), so this one does
 not work there.
@@ -47,7 +47,7 @@ marked the same way as the demo suppliers ("(démo)" names, `DEMO…` IDs, `exam
 | Bassam Express (démo) | Domestic only (Côte d'Ivoire → Côte d'Ivoire) | `demo_express` |
 | Trans-Côtière Cargo (démo) | International, 5% below the legacy "Transport Group" rates | `demo_cargo` |
 
-Same password as the demo suppliers (`DemoSBO2026`). Log in with the **Transporteur** role.
+Same password as the demo suppliers (`DemoSBO2026`). Logging in opens their transporter space.
 
 If the demo suppliers exist, their purchase orders are assigned to these transporters as
 pick-ups. Customer deliveries are **not** created by the script: assign a demo transporter

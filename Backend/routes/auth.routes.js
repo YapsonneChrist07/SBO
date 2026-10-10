@@ -19,7 +19,7 @@ router.post('/register', limit.register, [
 router.post('/login', limit.login, [
   body('username').notEmpty(),
   body('password').notEmpty(),
-  body('role').optional().isIn(ctrl.ROLES),
+  // The role comes from the account's company link; any role sent by the client is ignored.
 ], validate, ctrl.login);
 
 router.get('/me', authenticate, ctrl.getMe);

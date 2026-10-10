@@ -11,8 +11,9 @@ the three kinds of people SBO works with:
 | **Transporters** | Deliver customer orders (pick-up → delivered), pick up purchase orders from suppliers, publish their tariffs by destination and weight. |
 | **Admins** (SBO staff) | Dashboard, orders and delivery assignment, products, categories, promotions, inventory, customers, purchase orders to suppliers, and approving or disabling supplier and transporter accounts. |
 
-Everyone logs in on the same page and picks **Client**, **Fournisseur** or **Transporteur**.
-Supplier and transporter accounts are checked against the company they belong to, and a
+Everyone logs in on the same page. The role is detected from the account: one linked to a
+supplier or transporter company opens that company's space, any other account opens the
+shop. The role is chosen once, at sign-up (**Client**, **Fournisseur** or **Transporteur**), and a
 new partner sign-up waits for an admin's approval (Partenaires page) before its space opens.
 
 ## Stack

@@ -7,7 +7,8 @@ const api = request(app);
 let counter = 0;
 const uniqueName = (prefix) => `${prefix}${Date.now().toString(36)}${(counter++).toString(36)}`;
 
-// Register a user (optionally as a supplier/transporter company) and log in with that role.
+// Register a user (optionally as a supplier/transporter company) and log in; the server
+// gives the session the account's role.
 // Partner sign-ups start 'pending'; they are approved here unless approved: false.
 async function createUser({ role = 'client', admin = false, companyName, approved = true } = {}) {
   const username = uniqueName(role.slice(0, 3));
@@ -24,7 +25,7 @@ async function createUser({ role = 'client', admin = false, companyName, approve
     const [link, id] = role === 'supplier' ? ['suppliercontact', 'supplierID'] : ['transportercontact', 'transporterID'];
     await db.query(`UPDATE ${role} SET status = 'active' WHERE ${id} = (SELECT ${id} FROM ${link} WHERE contactID = ?)`, [reg.body.data.contactID]);
   }
-  const res = await api.post('/api/auth/login').send({ username, password, role });
+  const res = await api.post('/api/auth/login').send({ username, password });
   if (res.status !== 200) throw new Error(`login failed: ${res.status} ${res.body.message}`);
   const { token, user } = res.body.data;
   return { token, user, username, password, auth: { Authorization: `Bearer ${token}` } };

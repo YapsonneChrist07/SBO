@@ -1,5 +1,6 @@
 // Who may call what. Every row here was (or would be) a real hole: several of these
 // routes used to accept any logged-in user.
+const jwt = require('jsonwebtoken');
 const { api, createUser } = require('./helpers');
 
 const ADMIN_ONLY = [
@@ -72,9 +73,9 @@ describe('partner spaces only open to their own role', () => {
     expect((await api.get('/api/transporter-portal/summary').set(transporter.auth)).status).toBe(200);
   });
 
-  test('a supplier account logged in as a client has no supplier access', async () => {
-    const asClient = await api.post('/api/auth/login').send({ username: supplier.username, password: supplier.password, role: 'client' });
-    const auth = { Authorization: `Bearer ${asClient.body.data.token}` };
+  test('a supplier account with a client session has no supplier access', async () => {
+    const token = jwt.sign({ contactID: supplier.user.contactID, username: supplier.username, role: 'client', organizationID: null }, process.env.JWT_SECRET);
+    const auth = { Authorization: `Bearer ${token}` };
     expect((await api.get('/api/supplier-portal/summary').set(auth)).status).toBe(403);
   });
 });

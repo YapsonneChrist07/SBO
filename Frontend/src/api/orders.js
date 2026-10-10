@@ -3,6 +3,10 @@ import request from './client'
 export const createOrder = (payload, token) =>
   request('/sells', { method: 'POST', body: payload, token })
 
+// Delivery offers (transporter + price) for the cart, to the given city or the saved address.
+export const getShippingOptions = (items, cityID, token) =>
+  request('/sells/shipping-options', { method: 'POST', body: { items, cityID }, token })
+
 export const getMyOrders = (token) =>
   request('/sells?mine=true', { token }).then((data) => data.orders)
 

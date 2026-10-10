@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { getShipmentTransporters, assignTransporter, unassignTransporter } from '../../api/orders'
 import ShipmentBadge from '../../components/ShipmentBadge/ShipmentBadge'
+import { formatPriceOrTBD } from '../../utils/format'
 import '../SupplierProductsPage/SupplierPages.css'
 
 function formatDateTime(value) {
@@ -9,12 +10,14 @@ function formatDateTime(value) {
 }
 
 // Admin: who delivers this order. The transporter can be set or changed until they pick
-// the parcel up; after that the panel only shows the delivery's progress.
+// the parcel up; after that the panel only shows the delivery's progress. The one the
+// customer chose (and paid for) at checkout is preselected.
 export default function DeliveryPanel({ order, token, onChanged }) {
   const shipment = order.shipment
   const editable = !order.completed && (!shipment || shipment.status === 'assigned')
   const [transporters, setTransporters] = useState(null)
-  const [transporterID, setTransporterID] = useState(shipment?.transporterID || '')
+  const customerChoice = order.transporterID || ''
+  const [transporterID, setTransporterID] = useState(shipment?.transporterID || customerChoice)
   const [days, setDays] = useState(shipment?.expectedDaysDuration ?? '')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -25,9 +28,9 @@ export default function DeliveryPanel({ order, token, onChanged }) {
   }, [editable, token])
 
   useEffect(() => {
-    setTransporterID(shipment?.transporterID || '')
+    setTransporterID(shipment?.transporterID || customerChoice)
     setDays(shipment?.expectedDaysDuration ?? '')
-  }, [shipment])
+  }, [shipment, customerChoice])
 
   const run = async (action) => {
     setBusy(true)
@@ -47,6 +50,12 @@ export default function DeliveryPanel({ order, token, onChanged }) {
   return (
     <section className="admin-panel">
       <h2>Livraison</h2>
+      {order.transporterName && (
+        <p className="admin-order-detail__field admin-page__muted">
+          Choisi par le client : {order.transporterName.trim()}
+          {Number(order.transportCost) > 0 && ` · ${formatPriceOrTBD(order.transportCost)} payés`}
+        </p>
+      )}
       {shipment ? (
         <>
           <p className="admin-order-detail__field">

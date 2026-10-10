@@ -16,3 +16,19 @@ INSERT INTO `inventory` (`productID`, `storeID`, `quantityInStock`, `quantityOnC
 SELECT p.productID, s.storeID, 10, 0, 5, NOW()
 FROM product p CROSS JOIN store s
 WHERE p.productID LIKE 'TEST\_%';
+
+-- A carrier delivering in Côte d'Ivoire (TRJ_3), so test shoppers (Plateau) can check out.
+-- Prices are multiples of 655.957 FCFA (= 1 €) and some brackets are missing on purpose:
+-- ≤0.5 kg 2 €, ≤1 kg 3 €, ≤2 kg 4 €, ≤10 kg 10 €.
+INSERT INTO `address` (`addressID`, `cityID`) VALUES ('TEST_TADR', 'CITY_1');
+INSERT INTO `contact` (`contactID`, `addressID`, `firstName`, `lastName`, `username`, `password`) VALUES
+  ('TEST_TCNT', 'TEST_TADR', 'Test', 'Livreur', 'test_livreur', '!disabled');
+INSERT INTO `transporter` (`transporterID`, `addressID`, `name`, `status`) VALUES
+  ('TEST_TRP', 'TEST_TADR', 'Livreur Test', 'active');
+INSERT INTO `transportercontact` (`transporterID`, `contactID`, `startedDate`) VALUES
+  ('TEST_TRP', 'TEST_TCNT', NOW() - INTERVAL 1 DAY);
+INSERT INTO `transportercostpertraject` (`trajectID`, `weightLimitID`, `transporterID`, `transportCost`) VALUES
+  ('TRJ_3', 'WL_1', 'TEST_TRP', 1311.914),
+  ('TRJ_3', 'WL_2', 'TEST_TRP', 1967.871),
+  ('TRJ_3', 'WL_4', 'TEST_TRP', 2623.828),
+  ('TRJ_3', 'WL_20', 'TEST_TRP', 6559.57);

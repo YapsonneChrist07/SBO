@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
-import { createOrder } from '../../api/orders'
+import { createOrder, getShippingOptions } from '../../api/orders'
 import { getCities } from '../../api/lookup'
 import { getPaymentMethods } from '../../api/payments'
 import { getCreditCardTypes, getMyCreditCards, createCreditCard } from '../../api/creditcards'
@@ -33,6 +33,10 @@ export default function CheckoutPage() {
   const [savedMobileMoney, setSavedMobileMoney] = useState([])
   const [mobileMoneyID, setMobileMoneyID] = useState('')
   const [newMobile, setNewMobile] = useState({ mobilePhoneNbr: '', mobileOperatorID: '' })
+
+  // Delivery offers for the cart and city: { loading, options, country, error }.
+  const [shipping, setShipping] = useState({ loading: false, options: [], country: null, error: '' })
+  const [transporterID, setTransporterID] = useState('')
 
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -68,6 +72,29 @@ export default function CheckoutPage() {
     getMyCreditCards(user.contactID, token).then(setSavedCards).catch(() => {})
     getMyMobileMoneyAccounts(user.contactID, token).then(setSavedMobileMoney).catch(() => {})
   }, [user, token])
+
+  // Re-quote delivery whenever the city or the cart's contents change.
+  const cartKey = items.map((i) => `${i.productID}:${i.quantity}`).join(',')
+  useEffect(() => {
+    if (!token || !form.cityID || !cartKey || submitting) return
+    let cancelled = false
+    setShipping((s) => ({ ...s, loading: true, error: '' }))
+    const cartItems = cartKey.split(',').map((entry) => {
+      const [productID, quantity] = entry.split(':')
+      return { productID, quantity: Number(quantity) }
+    })
+    getShippingOptions(cartItems, form.cityID, token)
+      .then(({ options, country }) => {
+        if (cancelled) return
+        setShipping({ loading: false, options, country, error: '' })
+        // Keep the shopper's pick if it is still offered, else preselect the cheapest.
+        setTransporterID((current) => (options.some((o) => o.transporterID === current) ? current : options[0]?.transporterID || ''))
+      })
+      .catch((err) => {
+        if (!cancelled) setShipping({ loading: false, options: [], country: null, error: err.message })
+      })
+    return () => { cancelled = true }
+  }, [cartKey, form.cityID, token, submitting])
 
   const cardMethod = useMemo(
     () => paymentMethods.find((m) => /carte|card/i.test(m.paymentMethodName)) || paymentMethods[0],
@@ -108,6 +135,9 @@ export default function CheckoutPage() {
   }
 
   const handleChange = (e) => setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+  const selectedShipping = shipping.options.find((o) => o.transporterID === transporterID)
+  const shippingCost = selectedShipping?.cost || 0
+  const total = Math.round((subtotal + shippingCost) * 100) / 100
   const isCardMethod = cardMethod && methodID === cardMethod.paymentMethodID
 
   const handleSubmit = async (e) => {
@@ -148,6 +178,7 @@ export default function CheckoutPage() {
           phone: form.phone,
         },
         payment,
+        transporterID,
       }
       const { sellID } = await createOrder(payload, token)
       await clear()
@@ -209,6 +240,37 @@ export default function CheckoutPage() {
                 <input name="postalCode" value={form.postalCode} onChange={handleChange} required />
               </label>
             </div>
+          </section>
+
+          <section className="checkout-form__section">
+            <h2>Livraison</h2>
+            {!form.cityID ? (
+              <p className="checkout-page__muted">Choisissez une ville pour voir les transporteurs disponibles.</p>
+            ) : shipping.loading && !shipping.options.length ? (
+              <p className="checkout-page__muted">Calcul des frais de livraison…</p>
+            ) : shipping.error ? (
+              <p className="checkout-form__notice">{shipping.error}</p>
+            ) : shipping.options.length === 0 ? (
+              <p className="checkout-form__notice">
+                Aucun transporteur ne livre encore {shipping.country ? `en ${shipping.country}` : 'à cette adresse'}.
+                Choisissez une autre ville ou contactez SBO.
+              </p>
+            ) : (
+              <div className="checkout-form__saved-list">
+                {shipping.options.map((o) => (
+                  <label key={o.transporterID} className="checkout-form__radio checkout-form__shipping-option">
+                    <input
+                      type="radio"
+                      name="transporterID"
+                      checked={transporterID === o.transporterID}
+                      onChange={() => setTransporterID(o.transporterID)}
+                    />
+                    <span className="checkout-form__shipping-name">{o.name}</span>
+                    <span className="checkout-form__shipping-price">{formatPriceOrTBD(o.cost)}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </section>
 
           <section className="checkout-form__section">
@@ -360,8 +422,8 @@ export default function CheckoutPage() {
             )}
           </section>
 
-          <button className="checkout-form__submit" type="submit" disabled={submitting || !methodID}>
-            {submitting ? 'Traitement…' : `Confirmer la commande · ${formatPriceOrTBD(subtotal)}`}
+          <button className="checkout-form__submit" type="submit" disabled={submitting || !methodID || !selectedShipping}>
+            {submitting ? 'Traitement…' : `Confirmer la commande · ${formatPriceOrTBD(total)}`}
           </button>
         </form>
 
@@ -376,9 +438,17 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
+          <div className="checkout-summary__line">
+            <span>Sous-total</span>
+            <span>{formatPriceOrTBD(subtotal)}</span>
+          </div>
+          <div className="checkout-summary__line">
+            <span>Livraison{selectedShipping ? ` · ${selectedShipping.name}` : ''}</span>
+            <span>{selectedShipping ? formatPriceOrTBD(shippingCost) : '—'}</span>
+          </div>
           <div className="checkout-summary__total">
             <span>Total</span>
-            <span>{formatPriceOrTBD(subtotal)}</span>
+            <span>{formatPriceOrTBD(total)}</span>
           </div>
         </aside>
       </div>

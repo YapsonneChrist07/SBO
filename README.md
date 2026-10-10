@@ -6,7 +6,7 @@ the three kinds of people SBO works with:
 
 | Who | What they do on the site |
 | --- | --- |
-| **Clients** | Browse the catalogue, deals and shops, keep a wishlist, order and pay, follow their delivery, review products. |
+| **Clients** | Browse the catalogue, deals and shops, keep a wishlist, order and pay (choosing a transporter, priced from its tariffs), follow their delivery, review products. |
 | **Suppliers** | List the products they supply with their prices (optionally per shop), follow the purchase orders SBO sends them, read SBO's reviews of them. |
 | **Transporters** | Deliver customer orders (pick-up → delivered), pick up purchase orders from suppliers, publish their tariffs by destination and weight. |
 | **Admins** (SBO staff) | Dashboard, orders and delivery assignment, products, categories, promotions, inventory, customers, purchase orders to suppliers, and approving or disabling supplier and transporter accounts. |
@@ -73,6 +73,7 @@ mysql -u root -p sbo < Backend/migrations/002_purchase_receiving.sql
 mysql -u root -p sbo < Backend/migrations/003_shipment_for_web_orders.sql
 mysql -u root -p sbo < Backend/migrations/004_tariff_per_transporter.sql
 mysql -u root -p sbo < Backend/migrations/005_partner_status.sql
+mysql -u root -p sbo < Backend/migrations/006_region_countries.sql
 ```
 
 The dump always creates and uses a database named `sbo`, whatever `DB_NAME` says. To use
@@ -158,7 +159,9 @@ delivery flow, transporter tariffs, and rate limiting.
 
 - **Card payments are simulated.** Card details are stored in the `creditcard` table as-is
   and no payment provider is involved. Acceptable for a school demo, not for production.
-- **Currency:** the shop displays prices in euros, while transporter tariffs are in FCFA.
-- **Shipping cost** at checkout is always 0; transporter tariffs are not yet used to compute it.
+- **Currency:** the shop displays prices in euros, while transporter tariffs are entered in
+  FCFA. Delivery fees are converted at the fixed CFA franc rate (1 € = 655.957 FCFA).
+- **Delivery fees** are priced from the order's total weight and the destination country's
+  tariff only; parcel size and volume are not taken into account.
 - Some legacy catalogue entries have placeholder or duplicate names.
 - Rate-limit counters are kept in memory (one server instance).

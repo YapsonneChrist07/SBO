@@ -234,11 +234,11 @@ INSERT INTO `country` (`countryID`, `name`, `frenchName`, `description`) VALUES
   ('CNTY_99', 'INDONESIA', 'Indonésie', '');
 
 INSERT INTO `region` (`regionID`, `countryID`, `name`, `description`) VALUES
-  ('CBB839D7D897473', 'CNTY_1', 'Abidjan', NULL),
-  ('REG_1', 'CNTY_1', '', 'Region du sud à coté de Abidjan.'),
-  ('REG_2', 'CNTY_1', 'Sud Comoe', NULL),
-  ('REG_3', 'CNTY_1', 'Sud Comoe', NULL),
-  ('REG_4', 'CNTY_228', 'Centre', NULL);
+  ('CBB839D7D897473', 'CNTY_50', 'Abidjan', NULL),
+  ('REG_1', 'CNTY_50', '', 'Region du sud à coté de Abidjan.'),
+  ('REG_2', 'CNTY_50', 'Sud Comoe', NULL),
+  ('REG_3', 'CNTY_50', 'Sud Comoe', NULL),
+  ('REG_4', 'CNTY_38', 'Centre', NULL);
 
 INSERT INTO `city` (`cityID`, `regionID`, `name`, `departmentName`, `description`) VALUES
   ('1AA785DCB5CA4A0', 'CBB839D7D897473', 'Plateau', 'Abidjan', NULL),

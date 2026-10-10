@@ -158,6 +158,24 @@
   width: auto;
 }
 
+.checkout-form__shipping-name {
+  flex: 1;
+}
+
+.checkout-form__shipping-price {
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+.checkout-form__notice {
+  font-size: 0.88rem;
+  color: #b45309;
+  background: #fff7ed;
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin: 0;
+}
+
 .checkout-form__submit {
   width: 100%;
   padding: 15px;
@@ -231,6 +249,15 @@
   font-weight: 700;
   color: #1a1a1a;
   flex-shrink: 0;
+}
+
+.checkout-summary__line {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.6rem;
 }
 
 .checkout-summary__total {

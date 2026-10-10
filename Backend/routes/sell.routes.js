@@ -7,6 +7,7 @@ const validate = require('../middleware/validate');
 
 router.get('/', authenticate, ctrl.getAll);
 router.get('/shipment-transporters', authenticate, authorizeAdmin, shipmentCtrl.getAvailableTransporters);
+router.post('/shipping-options', authenticate, ctrl.shippingQuote);
 router.get('/:id', authenticate, ctrl.getById);
 router.post('/', authenticate, ctrl.create);
 router.patch('/:id/status', authenticate, authorizeAdmin, ctrl.setStatus);

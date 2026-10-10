@@ -62,6 +62,6 @@ test('rejects a destination from another zone and an unknown weight bracket', as
 });
 
 test('tariffs are only ever written for the logged-in transporter', async () => {
-  const [[{ n }]] = await db.query('SELECT COUNT(*) AS n FROM transportercostpertraject WHERE transporterID NOT IN (?)', [[carrierA.user.organizationID, carrierB.user.organizationID]]);
+  const [[{ n }]] = await db.query('SELECT COUNT(*) AS n FROM transportercostpertraject WHERE transporterID NOT IN (?)', [[carrierA.user.organizationID, carrierB.user.organizationID, 'TEST_TRP']]);
   expect(n).toBe(0);
 });

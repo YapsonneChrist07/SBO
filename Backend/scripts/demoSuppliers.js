@@ -13,7 +13,8 @@
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 
-const DEMO_PASSWORD = 'DemoSBO2026';
+// Local default; the online demo is built with its own secret DEMO_PASSWORD (see DEPLOYMENT.md).
+const DEMO_PASSWORD = process.env.DEMO_PASSWORD || 'DemoSBO2026';
 const DEMO_CITY = 'CITY_1'; // Grand-Bassam
 
 // Each supplier offers the first products (by ID) of the listed product lines, at a

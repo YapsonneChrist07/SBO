@@ -15,7 +15,10 @@ reach a real person.
 | Coopérative Karité (démo) | Cosmetics, body care | `demo_karite` |
 | Artisans d’Art (démo) | Artworks, decoration (no orders or reviews yet) | `demo_art` |
 
-All four use the password `DemoSBO2026`. Log in with the **Fournisseur** role.
+All four use the password `DemoSBO2026` locally. Log in with the **Fournisseur** role.
+The scripts use `DEMO_PASSWORD` instead when it is set; the online demo is always built
+with its own private password (see [DEPLOYMENT.md](../../DEPLOYMENT.md)), so this one does
+not work there.
 
 They come with catalogue products and wholesale prices, a few per-shop prices, some past
 (received) purchase orders, two pending orders you can mark as received from

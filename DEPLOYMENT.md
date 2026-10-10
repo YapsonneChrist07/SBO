@@ -12,11 +12,18 @@ repository, and the code pushed to GitHub (`git push`).
 
 ## 1. Build the demo database (on your computer)
 
-```sh
-cd Backend
+The repository is public and `Backend/scripts/README.md` shows the local demo password, so
+the online demo accounts get a **different password** that you choose now and keep private
+(share it only with the people testing the site, e.g. your jury). PowerShell, in `Backend/`:
+
+```powershell
 npm run demo:suppliers        # if not done already: the demo catalogue includes their products
+$env:DEMO_PASSWORD='<a new password, not the local one>'
 npm run db:build-demo         # creates ../sbo_demo.sql (about 125 MB)
+Remove-Item Env:DEMO_PASSWORD
 ```
+
+The build refuses to run without `DEMO_PASSWORD` or with the local default.
 
 ## 2. Railway: database
 
@@ -95,7 +102,8 @@ npm run db:build-demo         # creates ../sbo_demo.sql (about 125 MB)
 ## 6. Check
 
 - Shop: products with photos, deals, add to cart, checkout.
-- Log in as a demo supplier / transporter (logins in `Backend/scripts/README.md`).
+- Log in as a demo supplier / transporter (usernames in `Backend/scripts/README.md`, with the
+  `DEMO_PASSWORD` you chose in step 1).
 - Admin: Partenaires, purchase orders, assigning a transporter to an order.
 
 ## Updating later

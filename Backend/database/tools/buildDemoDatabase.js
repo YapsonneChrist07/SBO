@@ -9,7 +9,8 @@
  *    up to PRODUCTS_PER_LINE photographed products per product line, without duplicate
  *    names, plus their brands, stock and running promotions — and every product the demo
  *    suppliers offer in DB_NAME (run npm run demo:suppliers locally first).
- * 3. Runs the demo supplier and transporter scripts against it.
+ * 3. Runs the demo supplier and transporter scripts against it, with the password given in
+ *    DEMO_PASSWORD (required: the local default is public in scripts/README.md).
  * 4. Dumps it to ../sbo_demo.sql (repo root, not in git) with mysqldump.
  *
  * No customers, orders, reviews or admins are copied: create the admin after importing
@@ -35,6 +36,10 @@ const findMysqldump = () => {
 
 (async () => {
   if (DEMO === SOURCE) throw new Error('DEMO_DB_NAME must differ from DB_NAME');
+  // The default demo password is published in scripts/README.md; the online accounts need their own.
+  if (!process.env.DEMO_PASSWORD || process.env.DEMO_PASSWORD === 'DemoSBO2026') {
+    throw new Error('Set DEMO_PASSWORD to a new password for the online demo accounts (not the default one)');
+  }
   const conn = await mysql.createConnection({
     host: process.env.DB_HOST, port: process.env.DB_PORT, user: process.env.DB_USER, password: process.env.DB_PASSWORD,
     multipleStatements: true,
